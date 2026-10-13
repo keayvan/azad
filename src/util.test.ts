@@ -1,0 +1,79 @@
+import { describe, expect, it } from 'vitest';
+import { cigarettesAvoided, countBy, hourBucket, moneySaved, pickSuggestion, splitDuration } from './util';
+import { defaults, isUnlocked, parseBackup, stepDone } from './store';
+import type { Craving } from './store';
+
+const craving = (over: Partial<Craving>): Craving => ({
+  id: 'x',
+  at: 0,
+  place: 'home',
+  feeling: 'bored',
+  before: 'coffee',
+  suggestion: null,
+  tried: false,
+  outcome: 'passed',
+  ...over,
+});
+
+describe('splitDuration', () => {
+  it('splits into days, hours, minutes, seconds', () => {
+    expect(splitDuration(((2 * 24 + 3) * 3600 + 4 * 60 + 5) * 1000)).toEqual({ d: 2, h: 3, m: 4, s: 5 });
+  });
+  it('never goes negative', () => {
+    expect(splitDuration(-5000)).toEqual({ d: 0, h: 0, m: 0, s: 0 });
+  });
+});
+
+describe('pickSuggestion', () => {
+  it('returns null for an empty list or when everything is excluded', () => {
+    expect(pickSuggestion([], [], { place: 'a', feeling: 'b', before: 'c' })).toBeNull();
+    expect(pickSuggestion(['a'], [], { place: 'a', feeling: 'b', before: 'c' }, ['a'])).toBeNull();
+  });
+  it('favours a tool that worked in the same situation', () => {
+    const ctx = { place: 'home', feeling: 'bored', before: 'coffee' };
+    const history = [craving({ suggestion: 'walk', tried: true, outcome: 'passed' })];
+    let walk = 0;
+    for (let i = 0; i < 1000; i++) if (pickSuggestion(['walk', 'water'], history, ctx, [], () => (i + 0.5) / 1000) === 'walk') walk++;
+    expect(walk).toBeGreaterThan(600);
+  });
+  it('still offers a tool that failed before, just less often', () => {
+    const ctx = { place: 'home', feeling: 'bored', before: 'coffee' };
+    const history = [craving({ suggestion: 'walk', tried: true, outcome: 'smoked' })];
+    expect(pickSuggestion(['walk'], history, ctx, [], () => 0.5)).toBe('walk');
+  });
+});
+
+describe('stats', () => {
+  it('counts avoided cigarettes and money', () => {
+    expect(cigarettesAvoided(10, 2 * 86400000)).toBe(20);
+    expect(cigarettesAvoided(null, 86400000)).toBe(0);
+    expect(moneySaved(40, 20, 5)).toBe(10);
+    expect(moneySaved(40, 20, null)).toBe(0);
+  });
+  it('groups by key, most common first', () => {
+    expect(countBy(['a', 'b', 'b'], (x) => x)).toEqual([['b', 2], ['a', 1]]);
+  });
+  it('buckets hours', () => {
+    expect(hourBucket(new Date(2026, 0, 1, 8).getTime())).toBe('morning');
+    expect(hourBucket(new Date(2026, 0, 1, 23).getTime())).toBe('night');
+  });
+});
+
+describe('prep steps', () => {
+  it('unlocks only when every required step is done', () => {
+    const s = defaults('en');
+    expect(isUnlocked(s)).toBe(false);
+    s.beliefs = [{ belief: 'calm', truth: '' }];
+    s.triggers = ['coffee'];
+    s.readPct = 100;
+    expect(isUnlocked(s)).toBe(false);
+    s.readyChecks = [true, true, true];
+    expect(isUnlocked(s)).toBe(true);
+    expect(stepDone(s, 'habit')).toBe(false);
+  });
+  it('rejects a backup that is not ours', () => {
+    expect(parseBackup('not json')).toBeNull();
+    expect(parseBackup('{"v":2}')).toBeNull();
+    expect(parseBackup(JSON.stringify(defaults('en')))).not.toBeNull();
+  });
+});
