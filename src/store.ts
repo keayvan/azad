@@ -4,9 +4,14 @@ export type Theme = 'system' | 'light' | 'dark';
 export type Lang = 'fa' | 'en';
 export type StepId = 'habit' | 'beliefs' | 'why' | 'triggers' | 'book' | 'tools' | 'ready';
 
+export type Stance = 'still' | 'partly' | 'no';
+
 export interface Belief {
   belief: string;
   truth: string;
+  /** Filled in after quitting, on the review page. */
+  now?: Stance;
+  note?: string;
 }
 
 export interface Craving {

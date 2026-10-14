@@ -95,3 +95,12 @@ export function cigarettesAvoided(perDay: number | null, sinceMs: number): numbe
 export function moneySaved(avoided: number, costPerCig: number): number {
   return costPerCig > 0 ? avoided * costPerCig : 0;
 }
+
+export function reviewStats(beliefs: { belief: string; now?: string }[]) {
+  const filled = beliefs.filter((b) => b.belief.trim() !== '');
+  return {
+    total: filled.length,
+    reviewed: filled.filter((b) => b.now).length,
+    gone: filled.filter((b) => b.now === 'no').length,
+  };
+}

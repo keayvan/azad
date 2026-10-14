@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useT } from './i18n';
 import { costPerCigarette, useStore } from './store';
-import { MILESTONES, cigarettesAvoided, moneySaved, splitDuration } from './util';
+import { Icon } from './ui';
+import { MILESTONES, cigarettesAvoided, moneySaved, reviewStats, splitDuration } from './util';
 
 function useNow(intervalMs = 1000) {
   const [now, setNow] = useState(() => Date.now());
@@ -12,7 +13,7 @@ function useNow(intervalMs = 1000) {
   return now;
 }
 
-export function Dash({ onCraving }: { onCraving: () => void }) {
+export function Dash({ onCraving, onReview }: { onCraving: () => void; onReview: () => void }) {
   const s = useStore();
   const { t, num, date } = useT();
   const now = useNow();
@@ -22,6 +23,7 @@ export function Dash({ onCraving }: { onCraving: () => void }) {
   const avoided = cigarettesAvoided(s.perDay, elapsed);
   const cost = costPerCigarette(s);
   const saved = moneySaved(avoided, cost);
+  const rev = reviewStats(s.beliefs);
   const today = new Date(now).toDateString();
   const todays = s.cravings.filter((c) => new Date(c.at).toDateString() === today);
   const passed = todays.filter((c) => c.outcome === 'passed').length;
@@ -78,6 +80,16 @@ export function Dash({ onCraving }: { onCraving: () => void }) {
           <span>{t('dash.passed')}</span>
         </div>
       </div>
+
+      {rev.total > 0 && (
+        <button className="step" onClick={onReview}>
+          <span className="txt">
+            <b>{t('review.title')}</b>
+            <small>{t('review.card.progress', { done: num(rev.reviewed), total: num(rev.total) })}</small>
+          </span>
+          <Icon name="chevron" size={18} />
+        </button>
+      )}
 
       <div className="card">
         <h2>{t('dash.milestones')}</h2>

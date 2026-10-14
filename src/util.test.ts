@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cigarettesAvoided, countBy, hourBucket, moneySaved, pickSuggestion, splitDuration } from './util';
+import { cigarettesAvoided, countBy, hourBucket, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
 import { costPerCigarette, defaults, isUnlocked, parseBackup, stepDone } from './store';
 import type { Craving } from './store';
 
@@ -56,6 +56,18 @@ describe('stats', () => {
   it('buckets hours', () => {
     expect(hourBucket(new Date(2026, 0, 1, 8).getTime())).toBe('morning');
     expect(hourBucket(new Date(2026, 0, 1, 23).getTime())).toBe('night');
+  });
+});
+
+describe('reviewStats', () => {
+  it('counts only filled beliefs, reviewed ones and the ones that lost their hold', () => {
+    const beliefs = [
+      { belief: 'calm', now: 'no' },
+      { belief: 'focus', now: 'still' },
+      { belief: 'company' },
+      { belief: '   ', now: 'no' },
+    ];
+    expect(reviewStats(beliefs)).toEqual({ total: 3, reviewed: 2, gone: 1 });
   });
 });
 
