@@ -10,11 +10,11 @@ export const CHAPTERS: Chapter[] = [
     n: 1,
     en: [
       "The author's story",
-      "The author smoked for thirty-three years, up to a hundred a day, and failed at quitting many times; once he stayed off for six months and was still miserable. After a hypnotherapy session he stopped easily and even enjoyed it, and it took him years to understand why. His conclusion: there is no such thing as a confirmed smoker, and only fear keeps people smoking. He names two ways the method fails: not following the instructions (no cutting down, no substitutes) and not understanding, so question what society taught you, such as that smoking is a habit or that you enjoy it.",
+      "The author smoked for thirty-three years, up to a hundred a day, and failed to quit many times; once he stayed off for six months and was still climbing the walls. His wife sent him to a hypnotherapist, and nothing seemed to happen, yet he stopped and even enjoyed the withdrawal. He says plainly that this happened in spite of the therapist, not because of him, and that it was no magic or trance. What mattered is that he then spent years working out why it had been so easy, and that understanding is the method. His conclusion: there is no such thing as a confirmed smoker, and only fear keeps people smoking. He names two ways it fails: not following the instructions (no cutting down, no substitutes) and not understanding, so question what society taught you, such as that smoking is a habit or that you enjoy it.",
     ],
     fa: [
       'داستان نویسنده',
-      'نویسنده سی‌وسه سال سیگار کشید، تا صد نخ در روز، و بارها در ترک شکست خورد؛ یک بار شش ماه نکشید و باز هم بدبخت بود. بعد از یک جلسهٔ هیپنوتیزم راحت ترک کرد و حتی از آن لذت برد، و سال‌ها طول کشید بفهمد چرا. نتیجه‌اش: «سیگاریِ همیشگی» وجود ندارد و فقط ترس آدم‌ها را نگه می‌دارد. می‌گوید روش به دو دلیل شکست می‌خورد: دستورها اجرا نشوند (کم کردن و جایگزین ممنوع است) یا فهمیده نشوند؛ پس آنچه جامعه یادت داده، مثل «عادت است» یا «لذت می‌برم»، زیر سؤال ببر.',
+      "نویسنده سی‌وسه سال سیگار کشید، تا صد نخ در روز، و بارها در ترک شکست خورد؛ یک بار شش ماه نکشید و باز هم بی‌قرار و بدبخت بود. همسرش او را پیش یک هیپنوتراپیست فرستاد و انگار هیچ اتفاقی نیفتاد، ولی ترک کرد و حتی از دورهٔ ترک لذت برد. صریح می‌گوید این با وجود درمانگر بود نه به‌خاطر او، و جادو یا خلسه‌ای در کار نبود. آنچه اهمیت داشت این بود که بعد سال‌ها وقت گذاشت بفهمد چرا این‌قدر آسان بود، و همان فهمیدن خودِ روش است. نتیجه‌اش: «سیگاریِ همیشگی» وجود ندارد و فقط ترس آدم‌ها را نگه می‌دارد. می‌گوید روش به دو دلیل شکست می‌خورد: دستورها اجرا نشوند (کم کردن و جایگزین ممنوع است) یا فهمیده نشوند؛ پس آنچه جامعه یادت داده، مثل «عادت است» یا «لذت می‌برم»، زیر سؤال ببر.",
     ],
   },
   {
