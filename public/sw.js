@@ -1,112 +1,74 @@
-const CACHE = 'azad-v2';
-const SHELL = [
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './icon-192.png',
-  './icon-512.png',
-  './favicon.svg'
-];
+const CACHE = 'azad-v3';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './favicon.svg'];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => {
-      return cache.addAll(SHELL);
-    }).then(() => {
-      return self.skipWaiting();
-    })
-  );
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      return self.clients.claim();
-    })
+    caches
+      .keys()
+      .then((names) => Promise.all(names.filter((n) => n !== CACHE).map((n) => caches.delete(n))))
+      .then(() => self.clients.claim()),
   );
 });
 
+// Files under /assets/ have a content hash in their name, so a cached copy is never stale.
+// Everything else (page, manifest, icons) is fetched from the network first and the cache
+// is only the offline fallback, so a rename or new logo shows up as soon as there is a connection.
+function networkFirst(request, fallbackUrl) {
+  return fetch(request)
+    .then((response) => {
+      if (response.ok) {
+        const copy = response.clone();
+        caches.open(CACHE).then((cache) => cache.put(request, copy));
+      }
+      return response;
+    })
+    .catch(() => caches.match(request).then((hit) => hit || (fallbackUrl ? caches.match(fallbackUrl) : undefined) || Response.error()));
+}
+
+function cacheFirst(request) {
+  return caches.match(request).then(
+    (hit) =>
+      hit ||
+      fetch(request).then((response) => {
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      }),
+  );
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  const { method, url } = request;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.endsWith('/version.json')) return;
 
-  // Only handle GET requests
-  if (method !== 'GET') {
-    return;
-  }
-
-  // Never cache the version check
-  if (url.includes('version.json')) {
-    return;
-  }
-
-  // Only handle same-origin requests
-  if (!url.startsWith(self.location.origin)) {
-    return;
-  }
-
-  const isNavigationRequest = request.mode === 'navigate';
-
-  if (isNavigationRequest) {
-    // Network-first for navigation requests
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            caches.open(CACHE).then((cache) => {
-              cache.put(request, response.clone());
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          return caches.match('./index.html');
-        })
-    );
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirst(request, './index.html'));
+  } else if (url.pathname.includes('/assets/')) {
+    event.respondWith(cacheFirst(request));
   } else {
-    // Stale-while-revalidate for everything else
-    event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        const fetchPromise = fetch(request).then((response) => {
-          if (response.ok) {
-            caches.open(CACHE).then((cache) => {
-              cache.put(request, response.clone());
-            });
-          }
-          return response;
-        }).catch(() => {
-          return Response.error();
-        });
-
-        return cachedResponse || fetchPromise;
-      })
-    );
+    event.respondWith(networkFirst(request));
   }
 });
 
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'cache' && Array.isArray(event.data.urls)) {
     event.waitUntil(
-      caches.open(CACHE).then((cache) => {
-        return Promise.all(
-          event.data.urls.map((url) => {
-            // Only cache same-origin URLs
-            if (typeof url === 'string' && url.startsWith(self.location.origin)) {
-              return cache.add(url).catch(() => {
-                // Ignore individual failures
-              });
-            }
-          })
-        );
-      })
+      caches.open(CACHE).then((cache) =>
+        Promise.all(
+          event.data.urls.map((u) =>
+            typeof u === 'string' && u.startsWith(self.location.origin) ? cache.add(u).catch(() => {}) : undefined,
+          ),
+        ),
+      ),
     );
   }
 });
