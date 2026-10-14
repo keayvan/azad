@@ -1,48 +1,60 @@
+/* Same family as ritmo ("Volt"): near-black ground, one electric lime accent, flat cards with a hairline border. */
 :root {
-  --bg: #f4f5fb;
-  --bg2: #eceefb;
+  --bg: #f5f5f2;
+  --bg2: #eeeeea;
   --card: #ffffff;
-  --text: #151a30;
-  --muted: #6a7092;
-  --border: rgba(21, 26, 48, 0.09);
-  --primary: #5b5bf0;
-  --primary-2: #22b8cf;
+  --text: #111113;
+  --muted: #55555e;
+  --text3: #86868f;
+  --border: #e2e2dc;
+  --primary: #3f6212;
+  --primary-2: #3f6212;
   --on-primary: #ffffff;
-  --ok: #19a974;
-  --danger: #e2455a;
-  --shadow: 0 8px 28px rgba(60, 64, 140, 0.1);
-  --radius: 22px;
+  --accent-soft: #eaf5d3;
+  --ok: #3f6212;
+  --danger: #c62828;
+  --on-danger: #ffffff;
+  --shadow: 0 2px 8px rgba(17, 17, 19, 0.06);
+  --radius: 18px;
   color-scheme: light;
 }
 
 :root[data-theme='dark'] {
-  --bg: #0b0d19;
-  --bg2: #121528;
-  --card: #171b30;
-  --text: #eef0ff;
-  --muted: #9aa0c6;
-  --border: rgba(238, 240, 255, 0.09);
-  --primary: #7b7bff;
-  --primary-2: #3fd0e3;
-  --ok: #3ddc9a;
-  --danger: #ff6b80;
-  --shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  --bg: #09090b;
+  --bg2: #1c1c21;
+  --card: #141418;
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
+  --text3: #71717a;
+  --border: #24242a;
+  --primary: #c8ff4d;
+  --primary-2: #c8ff4d;
+  --on-primary: #0b0f02;
+  --accent-soft: #16190e;
+  --ok: #c8ff4d;
+  --danger: #ff5a4e;
+  --on-danger: #0b0f02;
+  --shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
   color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --bg: #0b0d19;
-    --bg2: #121528;
-    --card: #171b30;
-    --text: #eef0ff;
-    --muted: #9aa0c6;
-    --border: rgba(238, 240, 255, 0.09);
-    --primary: #7b7bff;
-    --primary-2: #3fd0e3;
-    --ok: #3ddc9a;
-    --danger: #ff6b80;
-    --shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    --bg: #09090b;
+    --bg2: #1c1c21;
+    --card: #141418;
+    --text: #f4f4f5;
+    --muted: #a1a1aa;
+    --text3: #71717a;
+    --border: #24242a;
+    --primary: #c8ff4d;
+    --primary-2: #c8ff4d;
+    --on-primary: #0b0f02;
+    --accent-soft: #16190e;
+    --ok: #c8ff4d;
+    --danger: #ff5a4e;
+    --on-danger: #0b0f02;
+    --shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
     color-scheme: dark;
   }
 }
@@ -58,13 +70,9 @@ body {
   min-height: 100%;
   background: var(--bg);
   color: var(--text);
-  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Tahoma, 'Noto Sans Arabic', sans-serif;
+  font-family: 'Manrope Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Tahoma, 'Noto Sans Arabic', sans-serif;
   font-size: 16px;
   line-height: 1.5;
-}
-
-body {
-  background: radial-gradient(1200px 500px at 50% -120px, var(--bg2), transparent), var(--bg);
 }
 
 h1,
@@ -105,7 +113,7 @@ button {
 
 .page-head h1 {
   font-size: 28px;
-  letter-spacing: -0.02em;
+  font-weight: 800;
 }
 
 .sub {
@@ -133,11 +141,10 @@ button {
   justify-content: center;
   gap: 8px;
   padding: 14px 20px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  border-radius: 14px;
+  background: var(--primary);
   color: var(--on-primary);
-  font-weight: 650;
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 35%, transparent);
+  font-weight: 700;
   transition: transform 0.12s ease, opacity 0.2s;
 }
 
@@ -162,7 +169,7 @@ button {
 }
 
 .btn.ghost {
-  background: var(--card);
+  background: var(--bg2);
   color: var(--text);
   border: 1px solid var(--border);
   box-shadow: none;
@@ -170,6 +177,7 @@ button {
 
 .btn.danger {
   background: var(--danger);
+  color: var(--on-danger);
   box-shadow: none;
 }
 
@@ -203,7 +211,7 @@ button {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--primary), var(--primary-2));
+  background: var(--primary);
   transition: width 0.4s ease;
 }
 
@@ -242,7 +250,7 @@ button {
 .step.done .dot {
   background: var(--ok);
   border-color: var(--ok);
-  color: #fff;
+  color: var(--on-primary);
 }
 
 .step .txt {
@@ -259,8 +267,9 @@ button {
 }
 
 .tag {
-  font-size: 12px;
-  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text3);
 }
 
 /* ---------- screen (sub pages) ---------- */
@@ -422,7 +431,7 @@ input[type='range'] {
   border: 2px solid var(--border);
   display: grid;
   place-items: center;
-  color: #fff;
+  color: var(--on-primary);
 }
 
 .toggle.on .box {
@@ -446,8 +455,8 @@ input[type='range'] {
 }
 
 .chip.on {
-  background: linear-gradient(135deg, var(--primary), var(--primary-2));
-  color: #fff;
+  background: var(--primary);
+  color: var(--on-primary);
   border-color: transparent;
 }
 
@@ -478,21 +487,11 @@ input[type='range'] {
   position: relative;
   overflow: hidden;
   padding: 24px 20px;
-  border-radius: 28px;
-  color: #fff;
-  background: linear-gradient(135deg, var(--primary), var(--primary-2));
-  box-shadow: 0 16px 40px color-mix(in srgb, var(--primary) 35%, transparent);
-}
-
-.hero::after {
-  content: '';
-  position: absolute;
-  inset-inline-end: -60px;
-  top: -60px;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 
 .hero .label {
@@ -511,7 +510,7 @@ input[type='range'] {
 }
 
 .clock div {
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--bg2);
   border-radius: 16px;
   padding: 10px 4px;
 }
@@ -521,6 +520,8 @@ input[type='range'] {
   font-size: 28px;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
+  color: var(--primary);
+  font-weight: 800;
 }
 
 .clock span {
@@ -556,12 +557,12 @@ input[type='range'] {
 .craving-btn {
   width: 100%;
   padding: 20px;
-  border-radius: 24px;
+  border-radius: 22px;
   font-size: 19px;
-  font-weight: 700;
-  color: #fff;
-  background: linear-gradient(135deg, #ff7a59, #e2455a);
-  box-shadow: 0 14px 30px rgba(226, 69, 90, 0.35);
+  font-weight: 800;
+  color: var(--on-danger);
+  background: var(--danger);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--danger) 30%, transparent);
   animation: pulse 2.8s ease-in-out infinite;
 }
 
@@ -593,9 +594,9 @@ input[type='range'] {
 }
 
 .mile.on {
-  background: color-mix(in srgb, var(--ok) 18%, transparent);
-  color: var(--ok);
-  font-weight: 650;
+  background: var(--accent-soft);
+  color: var(--primary);
+  font-weight: 700;
 }
 
 /* ---------- craving flow ---------- */
@@ -609,8 +610,8 @@ input[type='range'] {
   font-size: 19px;
   line-height: 1.6;
   padding: 22px;
-  border-radius: 24px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 16%, var(--card)), var(--card));
+  border-radius: 22px;
+  background: var(--accent-soft);
   border: 1px solid var(--border);
 }
 
@@ -639,7 +640,7 @@ input[type='range'] {
   place-items: center;
   margin: 0 auto;
   background: var(--ok);
-  color: #fff;
+  color: var(--on-primary);
 }
 
 /* ---------- insights ---------- */
@@ -668,7 +669,7 @@ input[type='range'] {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--primary), var(--primary-2));
+  background: var(--primary);
 }
 
 .bar-val {
@@ -708,7 +709,7 @@ input[type='range'] {
 
 .nav button.on {
   color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  background: var(--accent-soft);
 }
 
 .note {
@@ -779,4 +780,43 @@ select:focus {
 .questions li {
   font-weight: 600;
   margin-bottom: 4px;
+}
+
+/* ---------- brand, overline and script-safe type ---------- */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand .tile {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--bg2);
+  color: var(--primary);
+}
+
+.brand b {
+  font-size: 19px;
+  font-weight: 800;
+}
+
+:root[dir='ltr'] .tag {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+:root[dir='ltr'] h1,
+:root[dir='ltr'] .q,
+:root[dir='ltr'] .big-num,
+:root[dir='ltr'] .stat b {
+  letter-spacing: -0.02em;
+}
+
+/* letter-spacing would break the joined Persian letters */
+:root[dir='rtl'] * {
+  letter-spacing: normal !important;
 }

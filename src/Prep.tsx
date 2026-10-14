@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useT } from './i18n';
 import { CURRENCIES, READY_CHECKS, REQUIRED, STEPS, costPerCigarette, isLocked, isUnlocked, requiredDone, stepDone, update, useStore } from './store';
 import type { StepId } from './store';
-import { Icon, ListEditor, Screen, Segmented, Toggle } from './ui';
+import { Brand, Icon, ListEditor, Screen, Segmented, Toggle } from './ui';
 import { fromLocalInput, toLocalInput } from './util';
 
 export function PrepHome({ onOpen, onLast }: { onOpen: (id: StepId) => void; onLast: () => void }) {
@@ -12,6 +12,7 @@ export function PrepHome({ onOpen, onLast }: { onOpen: (id: StepId) => void; onL
   const unlocked = isUnlocked(s);
   return (
     <div className="page">
+      <Brand />
       <div className="page-head">
         <h1>{t('prep.title')}</h1>
         <p className="sub">{t('prep.sub')}</p>

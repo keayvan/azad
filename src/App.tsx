@@ -29,7 +29,7 @@ export default function App() {
     else root.setAttribute('data-theme', s.theme);
     const dark =
       s.theme === 'dark' || (s.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0b0d19' : '#f4f5fb');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#09090b' : '#f5f5f2');
     document.title = t('app.name');
   }, [s.lang, s.theme, t]);
 

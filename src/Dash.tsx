@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useT } from './i18n';
 import { costPerCigarette, useStore } from './store';
-import { Icon } from './ui';
+import { Brand, Icon } from './ui';
 import { MILESTONES, cigarettesAvoided, moneySaved, reviewStats, splitDuration } from './util';
 
 function useNow(intervalMs = 1000) {
@@ -29,6 +29,7 @@ export function Dash({ onCraving, onReview, onReminders }: { onCraving: () => vo
   const passed = todays.filter((c) => c.outcome === 'passed').length;
   return (
     <div className="page">
+      <Brand />
       <section className="hero">
         <div className="label">{t('dash.since')}</div>
         <div className="clock">

@@ -45,6 +45,21 @@ export function Icon({ name, size = 22 }: { name: keyof typeof PATHS; size?: num
   );
 }
 
+export function Brand() {
+  const { t } = useT();
+  return (
+    <div className="brand">
+      <span className="tile">
+        <svg width="20" height="20" viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeLinecap="round" aria-hidden="true">
+          <path d="M140 66 A56 56 0 1 0 154 118" strokeWidth="20" />
+          <circle cx="164" cy="42" r="19" fill="currentColor" stroke="none" />
+        </svg>
+      </span>
+      <b>{t('app.name')}</b>
+    </div>
+  );
+}
+
 export function Screen({
   title,
   onBack,
