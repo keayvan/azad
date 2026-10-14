@@ -108,3 +108,10 @@ export function lifetimeCost(costPerCig: number, perDay: number | null, years: n
   if (!perDay || perDay <= 0 || costPerCig <= 0 || years <= 0) return 0;
   return costPerCig * perDay * 365 * years;
 }
+
+/** Ticks or unticks one chapter and returns the new list and the matching percentage. */
+export function toggleChapter(readPct: number, chaptersRead: number[], n: number, total: number) {
+  const base = readPct >= 100 ? Array.from({ length: total }, (_, i) => i + 1) : chaptersRead;
+  const next = base.includes(n) ? base.filter((x) => x !== n) : [...base, n];
+  return { chaptersRead: next, readPct: Math.round((next.length / total) * 100) };
+}

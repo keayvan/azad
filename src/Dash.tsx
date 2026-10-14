@@ -13,7 +13,7 @@ function useNow(intervalMs = 1000) {
   return now;
 }
 
-export function Dash({ onCraving, onReview, onReminders }: { onCraving: () => void; onReview: () => void; onReminders: () => void }) {
+export function Dash({ onCraving, onReview, onReminders, onChapters }: { onCraving: () => void; onReview: () => void; onReminders: () => void; onChapters: () => void }) {
   const s = useStore();
   const { t, num, date } = useT();
   const now = useNow();
@@ -86,6 +86,14 @@ export function Dash({ onCraving, onReview, onReminders }: { onCraving: () => vo
         <span className="txt">
           <b>{t('dash.reminders')}</b>
           <small>{t('dash.reminders.desc')}</small>
+        </span>
+        <Icon name="chevron" size={18} />
+      </button>
+
+      <button className="step" onClick={onChapters}>
+        <span className="txt">
+          <b>{t('dash.chapters')}</b>
+          <small>{t('dash.chapters.desc')}</small>
         </span>
         <Icon name="chevron" size={18} />
       </button>

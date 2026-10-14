@@ -48,6 +48,7 @@ export interface State {
   triggers: string[];
   tools: string[];
   readPct: number;
+  chaptersRead: number[];
   readyChecks: boolean[];
   quitAt: number | null;
   plannedAt: number | null;
@@ -95,6 +96,7 @@ export function defaults(lang: Lang = detectLang()): State {
     triggers: [],
     tools: [...DEFAULT_TOOLS[lang]],
     readPct: 0,
+    chaptersRead: [],
     readyChecks: Array(READY_CHECKS).fill(false),
     quitAt: null,
     plannedAt: null,

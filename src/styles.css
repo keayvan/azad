@@ -820,3 +820,69 @@ select:focus {
 :root[dir='rtl'] * {
   letter-spacing: normal !important;
 }
+
+/* ---------- chapter notes ---------- */
+.chapters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chapters li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.chapters li.read {
+  background: var(--accent-soft);
+}
+
+.chk {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  margin-top: 1px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  display: grid;
+  place-items: center;
+  color: var(--on-primary);
+}
+
+.chk[aria-pressed='true'] {
+  background: var(--ok);
+  border-color: var(--ok);
+}
+
+.chapters details {
+  flex: 1;
+  min-width: 0;
+}
+
+.chapters summary {
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+}
+
+.chapters summary::-webkit-details-marker {
+  display: none;
+}
+
+.chapters details p {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.chapters .no {
+  color: var(--text3);
+  margin-inline-end: 8px;
+}

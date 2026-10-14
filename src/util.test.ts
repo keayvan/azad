@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
+import { toggleChapter, cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
 import { costPerCigarette, defaults, isLocked, isUnlocked, parseBackup, stepDone } from './store';
 import type { Craving } from './store';
 
@@ -68,6 +68,22 @@ describe('reviewStats', () => {
       { belief: '   ', now: 'no' },
     ];
     expect(reviewStats(beliefs)).toEqual({ total: 3, reviewed: 2, gone: 1 });
+  });
+});
+
+describe('toggleChapter', () => {
+  it('builds the percentage from ticked chapters', () => {
+    expect(toggleChapter(0, [], 1, 4)).toEqual({ chaptersRead: [1], readPct: 25 });
+    expect(toggleChapter(25, [1], 1, 4)).toEqual({ chaptersRead: [], readPct: 0 });
+  });
+  it('reaches 100 only when every chapter is ticked', () => {
+    expect(toggleChapter(75, [1, 2, 3], 4, 4).readPct).toBe(100);
+    expect(toggleChapter(0, [], 1, 45).readPct).toBeLessThan(100);
+  });
+  it('treats a finished book as all ticked when one is unticked', () => {
+    const r = toggleChapter(100, [], 2, 3);
+    expect(r.chaptersRead).toEqual([1, 3]);
+    expect(r.readPct).toBe(67);
   });
 });
 

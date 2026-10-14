@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { CHAPTERS } from './chapters';
+import { ChapterList } from './Chapters';
 import { useT } from './i18n';
 import { CURRENCIES, READY_CHECKS, REQUIRED, STEPS, costPerCigarette, isLocked, isUnlocked, requiredDone, stepDone, update, useStore } from './store';
 import type { StepId } from './store';
@@ -264,6 +266,81 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
               {t('beliefs.add')}
             </button>
             {!stepDone(s, 'beliefs') && <p className="warn">{t('beliefs.empty')}</p>}
+          </>
+        );
+      case 'why':
+        return (
+          <>
+            <p className="note">{t('why.hint')}</p>
+            <ListEditor items={s.reasons} onChange={(reasons) => update({ reasons })} placeholder={t('why.placeholder')} />
+          </>
+        );
+      case 'events':
+        return (
+          <>
+            <p className="note">{t('events.hint')}</p>
+            {s.events.map((e, i) => (
+              <div key={i} className="card belief">
+                <div className="top">
+                  <span className="tag">{num(i + 1)}</span>
+                  <button
+                    className="icon-btn danger"
+                    aria-label={t('common.delete')}
+                    onClick={() => update({ events: s.events.filter((_, j) => j !== i) })}
+                  >
+                    <Icon name="trash" size={18} />
+                  </button>
+                </div>
+                <label className="field">
+                  {t('events.event')}
+                  <textarea
+                    value={e.event}
+                    onChange={(ev) => update({ events: s.events.map((x, j) => (j === i ? { ...x, event: ev.target.value } : x)) })}
+                  />
+                </label>
+                <label className="field">
+                  {t('events.line')}
+                  <textarea
+                    value={e.line}
+                    onChange={(ev) => update({ events: s.events.map((x, j) => (j === i ? { ...x, line: ev.target.value } : x)) })}
+                  />
+                </label>
+              </div>
+            ))}
+            <button className="btn ghost" onClick={() => update({ events: [...s.events, { event: '', line: '' }] })}>
+              <Icon name="plus" size={18} />
+              {t('events.add')}
+            </button>
+          </>
+        );
+      case 'triggers':
+        return (
+          <>
+            <div className="card">
+              <p className="tag">{t('triggers.cats.title')}</p>
+              <p>{t('triggers.cats.body')}</p>
+            </div>
+            <p className="note">{t('triggers.hint')}</p>
+            <ListEditor items={s.triggers} onChange={(triggers) => update({ triggers })} placeholder={t('triggers.placeholder')} />
+            {!stepDone(s, 'triggers') && <p className="warn">{t('triggers.empty')}</p>}
+          </>
+        );
+      case 'book':
+        return (
+          <>
+            <div className="card">
+              <div className="big-num">{t('book.progress', { pct: num(s.readPct) })}</div>
+              <div className="progress" style={{ marginTop: 10 }}>
+                <span style={{ width: `${s.readPct}%` }} />
+              </div>
+              {s.readPct >= 100 && <p className="note" style={{ marginTop: 10 }}>{t('book.finished')}</p>}
+            </div>
+            <p className="note">{t('book.hint')}</p>
+            <button className="btn ghost" onClick={() => update({ chaptersRead: CHAPTERS.map((c) => c.n), readPct: 100 })}>
+              {t('book.all')}
+            </button>
+            <p className="note">{t('book.notes.hint')}</p>
+            <ChapterList checkable />
           </>
         );
       case 'why':
