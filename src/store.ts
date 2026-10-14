@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 export type Theme = 'system' | 'light' | 'dark';
 export type Lang = 'fa' | 'en';
-export type StepId = 'habit' | 'beliefs' | 'why' | 'triggers' | 'book' | 'tools' | 'ready';
+export type StepId = 'habit' | 'beliefs' | 'triggers' | 'book' | 'why' | 'events' | 'tools' | 'ready';
 
 export type Stance = 'still' | 'partly' | 'no';
 
@@ -12,6 +12,11 @@ export interface Belief {
   /** Filled in after quitting, on the review page. */
   now?: Stance;
   note?: string;
+}
+
+export interface PlannedEvent {
+  event: string;
+  line: string;
 }
 
 export interface Craving {
@@ -39,6 +44,7 @@ export interface State {
   currency: string;
   beliefs: Belief[];
   reasons: string[];
+  events: PlannedEvent[];
   triggers: string[];
   tools: string[];
   readPct: number;
@@ -49,8 +55,10 @@ export interface State {
 
 export const STORAGE_KEY = 'azad.state.v1';
 
-export const STEPS: StepId[] = ['habit', 'beliefs', 'why', 'triggers', 'book', 'tools', 'ready'];
-export const REQUIRED: StepId[] = ['beliefs', 'why', 'triggers', 'book', 'ready'];
+export const STEPS: StepId[] = ['habit', 'beliefs', 'triggers', 'book', 'why', 'events', 'tools', 'ready'];
+export const REQUIRED: StepId[] = ['beliefs', 'triggers', 'book', 'ready'];
+/** Steps that stay closed until the book is finished (the book sets reasons aside until then). */
+export const AFTER_BOOK: StepId[] = ['why'];
 export const READY_CHECKS = 4;
 
 const DEFAULT_TOOLS: Record<Lang, string[]> = {
@@ -81,6 +89,7 @@ export function defaults(lang: Lang = detectLang()): State {
     currency: lang === 'fa' ? 'تومان' : '$',
     beliefs: [],
     reasons: [],
+    events: [],
     triggers: [],
     tools: [...DEFAULT_TOOLS[lang]],
     readPct: 0,
@@ -110,6 +119,8 @@ export function stepDone(s: State, id: StepId): boolean {
       return s.beliefs.some((b) => b.belief.trim() !== '');
     case 'why':
       return s.reasons.length > 0;
+    case 'events':
+      return s.events.some((e) => e.event.trim() !== '');
     case 'triggers':
       return s.triggers.length > 0;
     case 'book':
@@ -119,6 +130,10 @@ export function stepDone(s: State, id: StepId): boolean {
     case 'ready':
       return s.readyChecks.length === READY_CHECKS && s.readyChecks.every(Boolean);
   }
+}
+
+export function isLocked(s: State, id: StepId): boolean {
+  return AFTER_BOOK.includes(id) && !stepDone(s, 'book');
 }
 
 export function requiredDone(s: State): number {

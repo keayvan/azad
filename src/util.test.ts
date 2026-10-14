@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cigarettesAvoided, countBy, hourBucket, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
-import { costPerCigarette, defaults, isUnlocked, parseBackup, stepDone } from './store';
+import { costPerCigarette, defaults, isLocked, isUnlocked, parseBackup, stepDone } from './store';
 import type { Craving } from './store';
 
 const craving = (over: Partial<Craving>): Craving => ({
@@ -96,13 +96,23 @@ describe('prep steps', () => {
     const s = defaults('en');
     expect(isUnlocked(s)).toBe(false);
     s.beliefs = [{ belief: 'calm', truth: '' }];
-    s.reasons = ['cough'];
     s.triggers = ['coffee'];
     s.readPct = 100;
     expect(isUnlocked(s)).toBe(false);
     s.readyChecks = [true, true, true, true];
     expect(isUnlocked(s)).toBe(true);
     expect(stepDone(s, 'habit')).toBe(false);
+  });
+  it('keeps the gains step closed until the book is finished, and does not require it', () => {
+    const s = defaults('en');
+    expect(isLocked(s, 'why')).toBe(true);
+    expect(isLocked(s, 'beliefs')).toBe(false);
+    s.readPct = 100;
+    expect(isLocked(s, 'why')).toBe(false);
+    s.beliefs = [{ belief: 'calm', truth: '' }];
+    s.triggers = ['coffee'];
+    s.readyChecks = [true, true, true, true];
+    expect(isUnlocked(s)).toBe(true);
   });
   it('rejects a backup that is not ours', () => {
     expect(parseBackup('not json')).toBeNull();

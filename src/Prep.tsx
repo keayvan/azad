@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useT } from './i18n';
-import { CURRENCIES, READY_CHECKS, REQUIRED, STEPS, costPerCigarette, isUnlocked, requiredDone, stepDone, update, useStore } from './store';
+import { CURRENCIES, READY_CHECKS, REQUIRED, STEPS, costPerCigarette, isLocked, isUnlocked, requiredDone, stepDone, update, useStore } from './store';
 import type { StepId } from './store';
 import { Icon, ListEditor, Screen, Segmented, Toggle } from './ui';
 import { fromLocalInput, toLocalInput } from './util';
@@ -25,13 +25,17 @@ export function PrepHome({ onOpen, onLast }: { onOpen: (id: StepId) => void; onL
       <ul className="steps">
         {STEPS.map((id) => (
           <li key={id}>
-            <button className={`step${stepDone(s, id) ? ' done' : ''}`} onClick={() => onOpen(id)}>
+            <button
+              className={`step${stepDone(s, id) ? ' done' : ''}${isLocked(s, id) ? ' locked' : ''}`}
+              disabled={isLocked(s, id)}
+              onClick={() => onOpen(id)}
+            >
               <span className="dot">
-                <Icon name="check" size={18} />
+                <Icon name={isLocked(s, id) ? 'lock' : 'check'} size={18} />
               </span>
               <span className="txt">
                 <b>{t(`step.${id}`)}</b>
-                <small>{t(`step.${id}.desc`)}</small>
+                <small>{isLocked(s, id) ? t('prep.locked.why') : t(`step.${id}.desc`)}</small>
               </span>
               <span className="tag">{REQUIRED.includes(id) ? '' : t('common.optional')}</span>
               <Icon name="chevron" size={18} />
@@ -162,6 +166,14 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
       case 'beliefs':
         return (
           <>
+            <div className="card">
+              <p className="tag">{t('beliefs.q.title')}</p>
+              <ul className="questions">
+                <li>{t('beliefs.q.1')}</li>
+                <li>{t('beliefs.q.2')}</li>
+                <li>{t('beliefs.q.3')}</li>
+              </ul>
+            </div>
             <p className="note">{t('beliefs.hint')}</p>
             {s.beliefs.map((b, i) => (
               <div key={i} className="card belief">
@@ -207,7 +219,44 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
           <>
             <p className="note">{t('why.hint')}</p>
             <ListEditor items={s.reasons} onChange={(reasons) => update({ reasons })} placeholder={t('why.placeholder')} />
-            {!stepDone(s, 'why') && <p className="warn">{t('why.empty')}</p>}
+          </>
+        );
+      case 'events':
+        return (
+          <>
+            <p className="note">{t('events.hint')}</p>
+            {s.events.map((e, i) => (
+              <div key={i} className="card belief">
+                <div className="top">
+                  <span className="tag">{num(i + 1)}</span>
+                  <button
+                    className="icon-btn danger"
+                    aria-label={t('common.delete')}
+                    onClick={() => update({ events: s.events.filter((_, j) => j !== i) })}
+                  >
+                    <Icon name="trash" size={18} />
+                  </button>
+                </div>
+                <label className="field">
+                  {t('events.event')}
+                  <textarea
+                    value={e.event}
+                    onChange={(ev) => update({ events: s.events.map((x, j) => (j === i ? { ...x, event: ev.target.value } : x)) })}
+                  />
+                </label>
+                <label className="field">
+                  {t('events.line')}
+                  <textarea
+                    value={e.line}
+                    onChange={(ev) => update({ events: s.events.map((x, j) => (j === i ? { ...x, line: ev.target.value } : x)) })}
+                  />
+                </label>
+              </div>
+            ))}
+            <button className="btn ghost" onClick={() => update({ events: [...s.events, { event: '', line: '' }] })}>
+              <Icon name="plus" size={18} />
+              {t('events.add')}
+            </button>
           </>
         );
       case 'triggers':

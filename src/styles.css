@@ -765,3 +765,18 @@ select:focus {
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
+
+.step:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.questions {
+  margin: 6px 0 0;
+  padding-inline-start: 20px;
+}
+
+.questions li {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
