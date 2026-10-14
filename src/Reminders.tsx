@@ -1,10 +1,14 @@
 import { useT } from './i18n';
+import { costPerCigarette, useStore } from './store';
 import { Screen } from './ui';
+import { lifetimeCost } from './util';
 
-const MOMENTS = ['offered', 'bad', 'others', 'panic'];
+const MOMENTS = ['offered', 'bad', 'others', 'panic', 'weight', 'doubt'];
 
 export function RemindersScreen({ onClose }: { onClose: () => void }) {
-  const { t } = useT();
+  const s = useStore();
+  const { t, num } = useT();
+  const lifetime = lifetimeCost(costPerCigarette(s), s.perDay, s.yearsLeft);
   return (
     <Screen
       title={t('dash.reminders')}
@@ -23,6 +27,15 @@ export function RemindersScreen({ onClose }: { onClose: () => void }) {
           ))}
         </ol>
       </div>
+      <div className="card">
+        <p className="tag">{t('rm.feeling.title')}</p>
+        <p>{t('rm.feeling')}</p>
+      </div>
+      {lifetime > 0 && (
+        <div className="card">
+          <p>{t('rm.cost', { cost: num(lifetime), currency: s.currency })}</p>
+        </div>
+      )}
       <h2 className="q" style={{ fontSize: 18 }}>
         {t('rm.moments.title')}
       </h2>

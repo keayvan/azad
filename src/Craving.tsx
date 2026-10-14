@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useT } from './i18n';
-import { getState, update, useStore } from './store';
+import { costPerCigarette, getState, update, useStore } from './store';
 import { Chips, Icon, Screen } from './ui';
-import { pickSuggestion, uid } from './util';
+import { lifetimeCost, pickSuggestion, uid } from './util';
 import type { Ctx } from './util';
 
 const PLACES = ['home', 'work', 'car', 'outside', 'social', 'other'];
@@ -12,7 +12,8 @@ const REMINDERS = 5;
 
 export function CravingScreen({ onClose }: { onClose: () => void }) {
   const s = useStore();
-  const { t } = useT();
+  const { t, num } = useT();
+  const lifetime = lifetimeCost(costPerCigarette(s), s.perDay, s.yearsLeft);
   const [step, setStep] = useState(0);
   const [ctx, setCtx] = useState<Ctx>({ place: '', feeling: '', before: '' });
   const [reminder] = useState(() => 1 + Math.floor(Math.random() * REMINDERS));
@@ -148,6 +149,11 @@ export function CravingScreen({ onClose }: { onClose: () => void }) {
         <div className="card">
           <p className="tag">{t('craving.why')}</p>
           <p className="what-why">{reason}</p>
+        </div>
+      )}
+      {lifetime > 0 && (
+        <div className="card">
+          <p>{t('craving.cost', { cost: num(lifetime), currency: s.currency })}</p>
         </div>
       )}
       <div className="card suggest">

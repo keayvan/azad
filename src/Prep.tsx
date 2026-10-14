@@ -1,9 +1,43 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useT } from './i18n';
 import { CURRENCIES, READY_CHECKS, REQUIRED, STEPS, costPerCigarette, isLocked, isUnlocked, requiredDone, stepDone, update, useStore } from './store';
 import type { StepId } from './store';
 import { Brand, Icon, ListEditor, Screen, Segmented, Toggle } from './ui';
-import { fromLocalInput, toLocalInput } from './util';
+import { fromLocalInput, lifetimeCost, splitDuration, toLocalInput } from './util';
+
+function PlanCard() {
+  const s = useStore();
+  const { t, num } = useT();
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(id);
+  }, []);
+  const left = s.plannedAt != null ? s.plannedAt - now : null;
+  const parts = left != null && left > 0 ? splitDuration(left) : null;
+  return (
+    <div className="card settings-group">
+      <h2>{t('plan.title')}</h2>
+      <input
+        type="datetime-local"
+        value={s.plannedAt != null ? toLocalInput(s.plannedAt) : ''}
+        min={toLocalInput(Date.now())}
+        onChange={(e) => update({ plannedAt: e.target.value === '' ? null : fromLocalInput(e.target.value) })}
+      />
+      {s.plannedAt != null && (
+        <p className="what-why" style={{ fontSize: 17 }}>
+          {parts ? t('plan.in', { d: num(parts.d), h: num(parts.h) }) : t('plan.due')}
+        </p>
+      )}
+      <p className="note">{t('plan.note')}</p>
+      {s.plannedAt != null && (
+        <button className="btn ghost small" onClick={() => update({ plannedAt: null })}>
+          {t('plan.clear')}
+        </button>
+      )}
+    </div>
+  );
+}
 
 export function PrepHome({ onOpen, onLast }: { onOpen: (id: StepId) => void; onLast: () => void }) {
   const s = useStore();
@@ -23,6 +57,7 @@ export function PrepHome({ onOpen, onLast }: { onOpen: (id: StepId) => void; onL
           <span style={{ width: `${(done / REQUIRED.length) * 100}%` }} />
         </div>
       </div>
+      <PlanCard />
       <ul className="steps">
         {STEPS.map((id) => (
           <li key={id}>
@@ -45,6 +80,7 @@ export function PrepHome({ onOpen, onLast }: { onOpen: (id: StepId) => void; onL
         ))}
       </ul>
       <p className="note">{unlocked ? t('prep.unlocked') : t('prep.locked')}</p>
+      <p className="note">{t('prep.already')}</p>
       <button className="btn block" disabled={!unlocked} onClick={onLast}>
         {!unlocked && <Icon name="lock" size={18} />}
         {t('prep.last')}
@@ -154,10 +190,25 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
                 </>
               )}
             </div>
+            <label className="field">
+              {t('habit.years')}
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                value={s.yearsLeft}
+                onChange={(e) => update({ yearsLeft: Math.max(1, Number(e.target.value) || 30) })}
+              />
+            </label>
             {cost > 0 && (
               <div className="card">
                 <p>{t('habit.perCig', { cost: num(cost, 2), currency: s.currency })}</p>
                 {s.perDay ? <p className="note">{t('habit.perMonth', { cost: num(cost * s.perDay * 30), currency: s.currency })}</p> : null}
+                {s.perDay ? (
+                  <p className="note">
+                    {t('habit.lifetime', { cost: num(lifetimeCost(cost, s.perDay, s.yearsLeft)), currency: s.currency, years: num(s.yearsLeft) })}
+                  </p>
+                ) : null}
               </div>
             )}
             <p className="note">{s.smokeType === 'roll' ? t('habit.rollNote') : t('habit.note')}</p>
@@ -263,6 +314,10 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
       case 'triggers':
         return (
           <>
+            <div className="card">
+              <p className="tag">{t('triggers.cats.title')}</p>
+              <p>{t('triggers.cats.body')}</p>
+            </div>
             <p className="note">{t('triggers.hint')}</p>
             <ListEditor items={s.triggers} onChange={(triggers) => update({ triggers })} placeholder={t('triggers.placeholder')} />
             {!stepDone(s, 'triggers') && <p className="warn">{t('triggers.empty')}</p>}
@@ -342,7 +397,7 @@ export function LastScreen({ onClose }: { onClose: () => void }) {
           disabled={!valid}
           onClick={() => {
             if (ms == null) return;
-            update({ quitAt: Math.min(ms, Date.now()) });
+            update({ quitAt: Math.min(ms, Date.now()), plannedAt: null });
             onClose();
           }}
         >

@@ -102,3 +102,9 @@ export function reviewStats(beliefs: { belief: string; now?: string }[]) {
     gone: filled.filter((b) => b.now === 'no').length,
   };
 }
+
+/** What the whole chain of cigarettes would cost over the years the person expects to keep smoking. */
+export function lifetimeCost(costPerCig: number, perDay: number | null, years: number): number {
+  if (!perDay || perDay <= 0 || costPerCig <= 0 || years <= 0) return 0;
+  return costPerCig * perDay * 365 * years;
+}

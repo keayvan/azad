@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cigarettesAvoided, countBy, hourBucket, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
+import { cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
 import { costPerCigarette, defaults, isLocked, isUnlocked, parseBackup, stepDone } from './store';
 import type { Craving } from './store';
 
@@ -68,6 +68,17 @@ describe('reviewStats', () => {
       { belief: '   ', now: 'no' },
     ];
     expect(reviewStats(beliefs)).toEqual({ total: 3, reviewed: 2, gone: 1 });
+  });
+});
+
+describe('lifetimeCost', () => {
+  it('multiplies cost, daily count, days and years', () => {
+    expect(lifetimeCost(0.5, 20, 30)).toBe(0.5 * 20 * 365 * 30);
+  });
+  it('is zero when anything is missing', () => {
+    expect(lifetimeCost(0, 20, 30)).toBe(0);
+    expect(lifetimeCost(0.5, null, 30)).toBe(0);
+    expect(lifetimeCost(0.5, 20, 0)).toBe(0);
   });
 });
 

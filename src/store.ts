@@ -50,6 +50,8 @@ export interface State {
   readPct: number;
   readyChecks: boolean[];
   quitAt: number | null;
+  plannedAt: number | null;
+  yearsLeft: number;
   cravings: Craving[];
 }
 
@@ -95,6 +97,8 @@ export function defaults(lang: Lang = detectLang()): State {
     readPct: 0,
     readyChecks: Array(READY_CHECKS).fill(false),
     quitAt: null,
+    plannedAt: null,
+    yearsLeft: 30,
     cravings: [],
   };
 }
