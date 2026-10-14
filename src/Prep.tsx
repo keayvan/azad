@@ -328,8 +328,9 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
 export function LastScreen({ onClose }: { onClose: () => void }) {
   const { t } = useT();
   const [when, setWhen] = useState(() => toLocalInput(Date.now()));
+  const [checks, setChecks] = useState([false, false, false]);
   const ms = fromLocalInput(when);
-  const valid = ms != null && ms <= Date.now() + 60000;
+  const valid = ms != null && ms <= Date.now() + 60000 && checks.every(Boolean);
   return (
     <Screen
       title={t('last.title')}
@@ -349,8 +350,23 @@ export function LastScreen({ onClose }: { onClose: () => void }) {
       }
     >
       <div className="card">
-        <p>{t('last.body')}</p>
+        <p className="tag">{t('last.steps.title')}</p>
+        <ol className="questions">
+          <li>{t('last.step.1')}</li>
+          <li>{t('last.step.2')}</li>
+          <li>{t('last.step.3')}</li>
+        </ol>
       </div>
+      <p className="tag">{t('last.check.title')}</p>
+      {(['last.vow', 'last.certain', 'last.excited'] as const).map((k, i) => (
+        <Toggle
+          key={k}
+          checked={checks[i]}
+          label={t(k)}
+          onChange={(v) => setChecks(checks.map((c, j) => (j === i ? v : c)))}
+        />
+      ))}
+      <p className="note">{t('last.doubt')}</p>
       <label className="field">
         {t('last.when')}
         <input type="datetime-local" value={when} max={toLocalInput(Date.now())} onChange={(e) => setWhen(e.target.value)} />

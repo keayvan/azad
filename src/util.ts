@@ -63,10 +63,8 @@ export function pickSuggestion(
 
 export const MILESTONES = [
   { id: 'day1', ms: 86400000 },
-  { id: 'day3', ms: 3 * 86400000 },
-  { id: 'week1', ms: 7 * 86400000 },
+  { id: 'day5', ms: 5 * 86400000 },
   { id: 'week3', ms: 21 * 86400000 },
-  { id: 'month1', ms: 30 * 86400000 },
   { id: 'month3', ms: 90 * 86400000 },
   { id: 'year1', ms: 365 * 86400000 },
 ] as const;

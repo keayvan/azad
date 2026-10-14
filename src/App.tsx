@@ -3,6 +3,7 @@ import { CravingScreen } from './Craving';
 import { Dash } from './Dash';
 import { Insights } from './Insights';
 import { LastScreen, PrepHome, StepScreen } from './Prep';
+import { RemindersScreen } from './Reminders';
 import { ReviewScreen } from './Review';
 import { Settings } from './Settings';
 import { UpdateBanner } from './UpdateBanner';
@@ -12,7 +13,7 @@ import type { StepId } from './store';
 import { Icon } from './ui';
 
 type Tab = 'home' | 'insights' | 'settings';
-type Overlay = { name: 'step'; id: StepId } | { name: 'last' } | { name: 'craving' } | { name: 'review' } | null;
+type Overlay = { name: 'step'; id: StepId } | { name: 'last' } | { name: 'craving' } | { name: 'review' } | { name: 'reminders' } | null;
 
 export default function App() {
   const s = useStore();
@@ -45,7 +46,7 @@ export default function App() {
         (s.quitAt == null ? (
           <PrepHome onOpen={(id) => setOverlay({ name: 'step', id })} onLast={() => setOverlay({ name: 'last' })} />
         ) : (
-          <Dash onCraving={() => setOverlay({ name: 'craving' })} onReview={() => setOverlay({ name: 'review' })} />
+          <Dash onCraving={() => setOverlay({ name: 'craving' })} onReview={() => setOverlay({ name: 'review' })} onReminders={() => setOverlay({ name: 'reminders' })} />
         ))}
       {tab === 'insights' && <Insights />}
       {tab === 'settings' && <Settings />}
@@ -65,6 +66,7 @@ export default function App() {
       {overlay?.name === 'last' && <LastScreen onClose={close} />}
       {overlay?.name === 'craving' && <CravingScreen onClose={close} />}
       {overlay?.name === 'review' && <ReviewScreen onClose={close} />}
+      {overlay?.name === 'reminders' && <RemindersScreen onClose={close} />}
     </div>
   );
 }
