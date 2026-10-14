@@ -16,6 +16,8 @@ export function CravingScreen({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState(0);
   const [ctx, setCtx] = useState<Ctx>({ place: '', feeling: '', before: '' });
   const [reminder] = useState(() => 1 + Math.floor(Math.random() * REMINDERS));
+  const [reasonIdx] = useState(() => Math.random());
+  const reason = s.reasons.length ? s.reasons[Math.floor(reasonIdx * s.reasons.length)] : null;
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [shown, setShown] = useState<string[]>([]);
   const [tried, setTried] = useState(false);
@@ -142,6 +144,12 @@ export function CravingScreen({ onClose }: { onClose: () => void }) {
     >
       <p className="tag">{t('craving.remember')}</p>
       <p className="reminder">{t(`rem.${reminder}`)}</p>
+      {reason && (
+        <div className="card">
+          <p className="tag">{t('craving.why')}</p>
+          <p className="what-why">{reason}</p>
+        </div>
+      )}
       <div className="card suggest">
         <p className="tag">{t('craving.fromList')}</p>
         {suggestion ? (

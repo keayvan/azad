@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useT } from './i18n';
-import { REQUIRED, STEPS, isUnlocked, requiredDone, stepDone, update, useStore } from './store';
+import { READY_CHECKS, REQUIRED, STEPS, isUnlocked, requiredDone, stepDone, update, useStore } from './store';
 import type { StepId } from './store';
 import { Icon, ListEditor, Screen, Toggle } from './ui';
 import { fromLocalInput, toLocalInput } from './util';
@@ -138,6 +138,14 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
             {!stepDone(s, 'beliefs') && <p className="warn">{t('beliefs.empty')}</p>}
           </>
         );
+      case 'why':
+        return (
+          <>
+            <p className="note">{t('why.hint')}</p>
+            <ListEditor items={s.reasons} onChange={(reasons) => update({ reasons })} placeholder={t('why.placeholder')} />
+            {!stepDone(s, 'why') && <p className="warn">{t('why.empty')}</p>}
+          </>
+        );
       case 'triggers':
         return (
           <>
@@ -175,12 +183,14 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
       case 'ready':
         return (
           <>
-            {[1, 2, 3].map((n, i) => (
+            {Array.from({ length: READY_CHECKS }, (_, i) => (
               <Toggle
-                key={n}
+                key={i}
                 checked={s.readyChecks[i] === true}
-                label={t(`ready.${n}`)}
-                onChange={(v) => update({ readyChecks: [0, 1, 2].map((j) => (j === i ? v : s.readyChecks[j] === true)) })}
+                label={t(`ready.${i + 1}`)}
+                onChange={(v) =>
+                  update({ readyChecks: Array.from({ length: READY_CHECKS }, (_, j) => (j === i ? v : s.readyChecks[j] === true)) })
+                }
               />
             ))}
           </>

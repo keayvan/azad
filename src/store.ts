@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 export type Theme = 'system' | 'light' | 'dark';
 export type Lang = 'fa' | 'en';
-export type StepId = 'habit' | 'beliefs' | 'triggers' | 'book' | 'tools' | 'ready';
+export type StepId = 'habit' | 'beliefs' | 'why' | 'triggers' | 'book' | 'tools' | 'ready';
 
 export interface Belief {
   belief: string;
@@ -29,6 +29,7 @@ export interface State {
   packSize: number;
   currency: string;
   beliefs: Belief[];
+  reasons: string[];
   triggers: string[];
   tools: string[];
   readPct: number;
@@ -39,8 +40,9 @@ export interface State {
 
 export const STORAGE_KEY = 'azad.state.v1';
 
-export const STEPS: StepId[] = ['habit', 'beliefs', 'triggers', 'book', 'tools', 'ready'];
-export const REQUIRED: StepId[] = ['beliefs', 'triggers', 'book', 'ready'];
+export const STEPS: StepId[] = ['habit', 'beliefs', 'why', 'triggers', 'book', 'tools', 'ready'];
+export const REQUIRED: StepId[] = ['beliefs', 'why', 'triggers', 'book', 'ready'];
+export const READY_CHECKS = 4;
 
 const DEFAULT_TOOLS: Record<Lang, string[]> = {
   en: ['20 push-ups', '20 squats', 'Slow deep breathing', 'Cold shower', 'A glass of water', 'A short walk'],
@@ -65,10 +67,11 @@ export function defaults(lang: Lang = detectLang()): State {
     packSize: 20,
     currency: '',
     beliefs: [],
+    reasons: [],
     triggers: [],
     tools: [...DEFAULT_TOOLS[lang]],
     readPct: 0,
-    readyChecks: [false, false, false],
+    readyChecks: Array(READY_CHECKS).fill(false),
     quitAt: null,
     cravings: [],
   };
@@ -80,6 +83,8 @@ export function stepDone(s: State, id: StepId): boolean {
       return s.perDay != null && s.perDay > 0;
     case 'beliefs':
       return s.beliefs.some((b) => b.belief.trim() !== '');
+    case 'why':
+      return s.reasons.length > 0;
     case 'triggers':
       return s.triggers.length > 0;
     case 'book':
@@ -87,7 +92,7 @@ export function stepDone(s: State, id: StepId): boolean {
     case 'tools':
       return s.tools.length > 0;
     case 'ready':
-      return s.readyChecks.length === 3 && s.readyChecks.every(Boolean);
+      return s.readyChecks.length === READY_CHECKS && s.readyChecks.every(Boolean);
   }
 }
 

@@ -64,10 +64,11 @@ describe('prep steps', () => {
     const s = defaults('en');
     expect(isUnlocked(s)).toBe(false);
     s.beliefs = [{ belief: 'calm', truth: '' }];
+    s.reasons = ['cough'];
     s.triggers = ['coffee'];
     s.readPct = 100;
     expect(isUnlocked(s)).toBe(false);
-    s.readyChecks = [true, true, true];
+    s.readyChecks = [true, true, true, true];
     expect(isUnlocked(s)).toBe(true);
     expect(stepDone(s, 'habit')).toBe(false);
   });
