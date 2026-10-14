@@ -106,6 +106,9 @@ export function Settings() {
       <div className="card">
         <h2>{t('set.about')}</h2>
         <p className="note">{t('set.about.body')}</p>
+        <p className="tag" style={{ marginTop: 10 }}>
+          {t('set.version', { v: __APP_VERSION__ })}
+        </p>
       </div>
     </div>
   );

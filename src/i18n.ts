@@ -179,6 +179,7 @@ export const en = {
   'set.reset': 'Erase everything',
   'set.reset.confirm': 'This erases everything on this phone. Continue?',
   'set.about': 'About',
+  'set.version': 'Version {v}',
   'set.about.body': "Raha is an independent personal tool. It is not affiliated with or endorsed by any author or publisher. Your data never leaves this device. If you have a medical condition or take medication, talk to your doctor about quitting.",
 } as const;
 
@@ -360,6 +361,7 @@ export const fa: Record<keyof typeof en, string> = {
   'set.reset': 'پاک کردن همه‌چیز',
   'set.reset.confirm': 'همه‌چیز روی این گوشی پاک می‌شود. ادامه می‌دهی؟',
   'set.about': 'دربارهٔ برنامه',
+  'set.version': 'نسخه {v}',
   'set.about.body': 'رها یک ابزار شخصی و مستقل است و به هیچ نویسنده یا ناشری وابسته نیست و از سوی کسی تأیید نشده. داده‌های تو از این دستگاه بیرون نمی‌رود. اگر بیماری داری یا دارو مصرف می‌کنی، دربارهٔ ترک سیگار با پزشکت صحبت کن.',
 };
 
