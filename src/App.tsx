@@ -4,6 +4,7 @@ import { Dash } from './Dash';
 import { Insights } from './Insights';
 import { LastScreen, PrepHome, StepScreen } from './Prep';
 import { Settings } from './Settings';
+import { UpdateBanner } from './UpdateBanner';
 import { useT } from './i18n';
 import { useStore } from './store';
 import type { StepId } from './store';
@@ -47,6 +48,8 @@ export default function App() {
         ))}
       {tab === 'insights' && <Insights />}
       {tab === 'settings' && <Settings />}
+
+      <UpdateBanner />
 
       <nav className="nav">
         {tabs.map((x) => (

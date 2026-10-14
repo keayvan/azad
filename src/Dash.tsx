@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useT } from './i18n';
-import { useStore } from './store';
+import { costPerCigarette, useStore } from './store';
 import { MILESTONES, cigarettesAvoided, moneySaved, splitDuration } from './util';
 
 function useNow(intervalMs = 1000) {
@@ -20,7 +20,8 @@ export function Dash({ onCraving }: { onCraving: () => void }) {
   const elapsed = now - s.quitAt;
   const { d, h, m, s: sec } = splitDuration(elapsed);
   const avoided = cigarettesAvoided(s.perDay, elapsed);
-  const saved = moneySaved(avoided, s.packSize, s.packPrice);
+  const cost = costPerCigarette(s);
+  const saved = moneySaved(avoided, cost);
   const today = new Date(now).toDateString();
   const todays = s.cravings.filter((c) => new Date(c.at).toDateString() === today);
   const passed = todays.filter((c) => c.outcome === 'passed').length;
@@ -60,7 +61,7 @@ export function Dash({ onCraving }: { onCraving: () => void }) {
             <span>{t('dash.avoided')}</span>
           </div>
         ) : null}
-        {s.perDay && s.packPrice ? (
+        {s.perDay && cost > 0 ? (
           <div className="card stat">
             <b>
               {num(saved)} {s.currency}

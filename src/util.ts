@@ -92,7 +92,6 @@ export function cigarettesAvoided(perDay: number | null, sinceMs: number): numbe
   return Math.floor((perDay * Math.max(0, sinceMs)) / 86400000);
 }
 
-export function moneySaved(avoided: number, packSize: number, packPrice: number | null): number {
-  if (!packPrice || packPrice <= 0 || packSize <= 0) return 0;
-  return (avoided / packSize) * packPrice;
+export function moneySaved(avoided: number, costPerCig: number): number {
+  return costPerCig > 0 ? avoided * costPerCig : 0;
 }

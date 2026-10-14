@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cigarettesAvoided, countBy, hourBucket, moneySaved, pickSuggestion, splitDuration } from './util';
-import { defaults, isUnlocked, parseBackup, stepDone } from './store';
+import { costPerCigarette, defaults, isUnlocked, parseBackup, stepDone } from './store';
 import type { Craving } from './store';
 
 const craving = (over: Partial<Craving>): Craving => ({
@@ -47,8 +47,8 @@ describe('stats', () => {
   it('counts avoided cigarettes and money', () => {
     expect(cigarettesAvoided(10, 2 * 86400000)).toBe(20);
     expect(cigarettesAvoided(null, 86400000)).toBe(0);
-    expect(moneySaved(40, 20, 5)).toBe(10);
-    expect(moneySaved(40, 20, null)).toBe(0);
+    expect(moneySaved(40, 0.25)).toBe(10);
+    expect(moneySaved(40, 0)).toBe(0);
   });
   it('groups by key, most common first', () => {
     expect(countBy(['a', 'b', 'b'], (x) => x)).toEqual([['b', 2], ['a', 1]]);
@@ -56,6 +56,26 @@ describe('stats', () => {
   it('buckets hours', () => {
     expect(hourBucket(new Date(2026, 0, 1, 8).getTime())).toBe('morning');
     expect(hourBucket(new Date(2026, 0, 1, 23).getTime())).toBe('night');
+  });
+});
+
+describe('cost per cigarette', () => {
+  it('uses the pack price for packs', () => {
+    const s = defaults('en');
+    s.packPrice = 10;
+    s.packSize = 20;
+    expect(costPerCigarette(s)).toBe(0.5);
+  });
+  it('uses grams for rolled cigarettes', () => {
+    const s = defaults('en');
+    s.smokeType = 'roll';
+    s.rollPrice = 12;
+    s.rollGrams = 30;
+    s.rollPerCig = 0.75;
+    expect(costPerCigarette(s)).toBeCloseTo(0.3);
+  });
+  it('is zero until a price is entered', () => {
+    expect(costPerCigarette(defaults('en'))).toBe(0);
   });
 });
 

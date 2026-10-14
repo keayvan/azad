@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useT } from './i18n';
-import { READY_CHECKS, REQUIRED, STEPS, isUnlocked, requiredDone, stepDone, update, useStore } from './store';
+import { CURRENCIES, READY_CHECKS, REQUIRED, STEPS, costPerCigarette, isUnlocked, requiredDone, stepDone, update, useStore } from './store';
 import type { StepId } from './store';
-import { Icon, ListEditor, Screen, Toggle } from './ui';
+import { Icon, ListEditor, Screen, Segmented, Toggle } from './ui';
 import { fromLocalInput, toLocalInput } from './util';
 
 export function PrepHome({ onOpen, onLast }: { onOpen: (id: StepId) => void; onLast: () => void }) {
@@ -53,48 +53,112 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
   const { t, num } = useT();
   const body = () => {
     switch (id) {
-      case 'habit':
+      case 'habit': {
+        const cost = costPerCigarette(s);
+        const known = CURRENCIES.includes(s.currency);
+        const numInput = (value: number | null, set: (v: number | null) => void, mode: 'numeric' | 'decimal' = 'decimal') => (
+          <input
+            type="number"
+            inputMode={mode}
+            min={0}
+            step="any"
+            value={value ?? ''}
+            onChange={(e) => set(e.target.value === '' ? null : Math.max(0, Number(e.target.value)))}
+          />
+        );
         return (
           <>
+            <Segmented
+              options={[
+                { id: 'pack' as const, label: t('habit.type.pack') },
+                { id: 'roll' as const, label: t('habit.type.roll') },
+              ]}
+              value={s.smokeType}
+              onChange={(smokeType) => update({ smokeType })}
+            />
             <div className="grid2">
               <label className="field">
                 {t('habit.perDay')}
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  value={s.perDay ?? ''}
-                  onChange={(e) => update({ perDay: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) })}
-                />
-              </label>
-              <label className="field">
-                {t('habit.packSize')}
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  value={s.packSize}
-                  onChange={(e) => update({ packSize: Math.max(1, Number(e.target.value) || 20) })}
-                />
-              </label>
-              <label className="field">
-                {t('habit.price')}
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  min={0}
-                  value={s.packPrice ?? ''}
-                  onChange={(e) => update({ packPrice: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) })}
-                />
+                {numInput(s.perDay, (perDay) => update({ perDay }), 'numeric')}
               </label>
               <label className="field">
                 {t('habit.currency')}
-                <input type="text" value={s.currency} maxLength={6} onChange={(e) => update({ currency: e.target.value })} />
+                <select
+                  value={known ? s.currency : '__other'}
+                  onChange={(e) => update({ currency: e.target.value === '__other' ? '' : e.target.value })}
+                >
+                  {CURRENCIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                  <option value="__other">{t('habit.currency.other')}</option>
+                </select>
               </label>
+              {!known && (
+                <label className="field" style={{ gridColumn: '1 / -1' }}>
+                  {t('habit.currency.custom')}
+                  <input type="text" value={s.currency} maxLength={8} onChange={(e) => update({ currency: e.target.value })} />
+                </label>
+              )}
+              {s.smokeType === 'pack' ? (
+                <>
+                  <label className="field">
+                    {t('habit.price')}
+                    {numInput(s.packPrice, (packPrice) => update({ packPrice }))}
+                  </label>
+                  <label className="field">
+                    {t('habit.packSize')}
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      value={s.packSize}
+                      onChange={(e) => update({ packSize: Math.max(1, Number(e.target.value) || 20) })}
+                    />
+                  </label>
+                </>
+              ) : (
+                <>
+                  <label className="field">
+                    {t('habit.rollPrice')}
+                    {numInput(s.rollPrice, (rollPrice) => update({ rollPrice }))}
+                  </label>
+                  <label className="field">
+                    {t('habit.rollGrams')}
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min={1}
+                      step="any"
+                      value={s.rollGrams}
+                      onChange={(e) => update({ rollGrams: Math.max(1, Number(e.target.value) || 30) })}
+                    />
+                  </label>
+                  <label className="field">
+                    {t('habit.rollPerCig')}
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min={0.1}
+                      step="any"
+                      value={s.rollPerCig}
+                      onChange={(e) => update({ rollPerCig: Math.max(0.1, Number(e.target.value) || 0.7) })}
+                    />
+                  </label>
+                </>
+              )}
             </div>
-            <p className="note">{t('habit.note')}</p>
+            {cost > 0 && (
+              <div className="card">
+                <p>{t('habit.perCig', { cost: num(cost, 2), currency: s.currency })}</p>
+                {s.perDay ? <p className="note">{t('habit.perMonth', { cost: num(cost * s.perDay * 30), currency: s.currency })}</p> : null}
+              </div>
+            )}
+            <p className="note">{s.smokeType === 'roll' ? t('habit.rollNote') : t('habit.note')}</p>
           </>
         );
+      }
       case 'beliefs':
         return (
           <>

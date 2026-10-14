@@ -25,8 +25,12 @@ export interface State {
   lang: Lang;
   theme: Theme;
   perDay: number | null;
+  smokeType: 'pack' | 'roll';
   packPrice: number | null;
   packSize: number;
+  rollPrice: number | null;
+  rollGrams: number;
+  rollPerCig: number;
   currency: string;
   beliefs: Belief[];
   reasons: string[];
@@ -63,9 +67,13 @@ export function defaults(lang: Lang = detectLang()): State {
     lang,
     theme: 'system',
     perDay: null,
+    smokeType: 'pack',
     packPrice: null,
     packSize: 20,
-    currency: '',
+    rollPrice: null,
+    rollGrams: 30,
+    rollPerCig: 0.7,
+    currency: lang === 'fa' ? 'تومان' : '$',
     beliefs: [],
     reasons: [],
     triggers: [],
@@ -75,6 +83,18 @@ export function defaults(lang: Lang = detectLang()): State {
     quitAt: null,
     cravings: [],
   };
+}
+
+export const CURRENCIES = ['تومان', 'ریال', '$', '€', '£', '₺', 'AED', 'CAD'];
+
+/** Money spent per cigarette, from either a pack price or a pouch of rolling tobacco. */
+export function costPerCigarette(s: State): number {
+  if (s.smokeType === 'roll') {
+    if (!s.rollPrice || s.rollPrice <= 0 || s.rollGrams <= 0 || s.rollPerCig <= 0) return 0;
+    return s.rollPrice / (s.rollGrams / s.rollPerCig);
+  }
+  if (!s.packPrice || s.packPrice <= 0 || s.packSize <= 0) return 0;
+  return s.packPrice / s.packSize;
 }
 
 export function stepDone(s: State, id: StepId): boolean {

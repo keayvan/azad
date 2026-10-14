@@ -1,4 +1,4 @@
-const CACHE = 'azad-v1';
+const CACHE = 'azad-v2';
 const SHELL = [
   './',
   './index.html',
@@ -40,6 +40,11 @@ self.addEventListener('fetch', (event) => {
 
   // Only handle GET requests
   if (method !== 'GET') {
+    return;
+  }
+
+  // Never cache the version check
+  if (url.includes('version.json')) {
     return;
   }
 
