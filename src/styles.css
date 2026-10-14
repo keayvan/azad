@@ -878,8 +878,10 @@ select:focus {
 }
 
 .chapters details p {
-  margin-top: 6px;
+  margin-top: 8px;
   color: var(--muted);
+  font-size: 15px;
+  line-height: 1.85;
 }
 
 .chapters .no {
