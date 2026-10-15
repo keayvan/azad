@@ -25,6 +25,8 @@ export interface UserList {
   items: string[];
   /** When true, the items can be offered on the craving screen. */
   forCraving: boolean;
+  /** Show this list as a card on the home page. */
+  pinned?: boolean;
 }
 
 export interface Craving {
@@ -64,6 +66,8 @@ export interface State {
   /** The order of the preparation steps and of the cards on the home page, set by dragging. */
   stepOrder: StepId[];
   dashOrder: string[];
+  /** Ids of built-in home cards the person removed (reminders, chapters, review, milestones). */
+  hiddenCards: string[];
   yearsLeft: number;
   cravings: Craving[];
 }
@@ -118,6 +122,7 @@ export function defaults(lang: Lang = detectLang()): State {
     plannedAt: null,
     stepOrder: [],
     dashOrder: [],
+    hiddenCards: [],
     yearsLeft: 30,
     cravings: [],
   };

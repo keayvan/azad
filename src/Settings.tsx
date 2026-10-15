@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useT } from './i18n';
 import { getState, parseBackup, replaceState, resetAll, update, useStore } from './store';
-import { Segmented } from './ui';
+import { Segmented, Toggle } from './ui';
 import { fromLocalInput, toLocalInput } from './util';
 
 export function Settings() {
@@ -58,6 +58,28 @@ export function Settings() {
           value={s.theme}
           onChange={(theme) => update({ theme })}
         />
+      </div>
+
+      <div className="card settings-group">
+        <h2>{t('set.home')}</h2>
+        <p className="note">{t('set.home.hint')}</p>
+        {(
+          [
+            ['reminders', 'dash.reminders'],
+            ['chapters', 'dash.chapters'],
+            ['review', 'review.title'],
+            ['milestones', 'dash.milestones'],
+          ] as const
+        ).map(([id, key]) => (
+          <Toggle
+            key={id}
+            checked={!s.hiddenCards.includes(id)}
+            label={t(key)}
+            onChange={(on) =>
+              update((cur) => ({ hiddenCards: on ? cur.hiddenCards.filter((x) => x !== id) : [...cur.hiddenCards, id] }))
+            }
+          />
+        ))}
       </div>
 
       {s.quitAt != null && (

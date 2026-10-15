@@ -5,6 +5,7 @@ import { useT } from './i18n';
 import { CURRENCIES, READY_CHECKS, REQUIRED, STEPS, costPerCigarette, isLocked, isUnlocked, requiredDone, stepDone, update, useStore } from './store';
 import type { StepId } from './store';
 import { Brand, Icon, ListEditor, NumField, Screen, Segmented, Toggle } from './ui';
+import { PinnedList } from './Lists';
 import { useSortable } from './sortable';
 import { fromLocalInput, lifetimeCost, moveItem, orderBy, splitDuration, toLocalInput } from './util';
 
@@ -63,7 +64,15 @@ function PlanCard() {
   );
 }
 
-export function PrepHome({ onOpen, onLast }: { onOpen: (id: StepId) => void; onLast: () => void }) {
+export function PrepHome({
+  onOpen,
+  onLast,
+  onOpenList,
+}: {
+  onOpen: (id: StepId) => void;
+  onLast: () => void;
+  onOpenList: (id: string) => void;
+}) {
   const s = useStore();
   const { t, num } = useT();
   const done = requiredDone(s);
@@ -113,6 +122,16 @@ export function PrepHome({ onOpen, onLast }: { onOpen: (id: StepId) => void; onL
           </li>
         ))}
       </ul>
+      {s.lists
+        .filter((l) => l.pinned)
+        .map((l) => (
+          <PinnedList
+            key={l.id}
+            id={l.id}
+            onOpen={onOpenList}
+            onRemove={() => update((cur) => ({ lists: cur.lists.map((x) => (x.id === l.id ? { ...x, pinned: false } : x)) }))}
+          />
+        ))}
       <p className="note">{unlocked ? t('prep.unlocked') : t('prep.locked')}</p>
       <p className="note">{t('prep.already')}</p>
       <button className="btn block" disabled={!unlocked} onClick={onLast}>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { orderBy } from './util';
+import { homeCardIds, orderBy } from './util';
 import { normalizeState } from './store';
 import { moveItem, cravingPool, parseNum, toggleChapter, cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
 import { costPerCigarette, defaults, isLocked, isUnlocked, parseBackup, stepDone } from './store';
@@ -70,6 +70,21 @@ describe('reviewStats', () => {
       { belief: '   ', now: 'no' },
     ];
     expect(reviewStats(beliefs)).toEqual({ total: 3, reviewed: 2, gone: 1 });
+  });
+});
+
+describe('homeCardIds', () => {
+  it('lists the built-in cards, skips hidden ones and the review card without beliefs', () => {
+    expect(homeCardIds([], [], 0)).toEqual(['reminders', 'chapters', 'milestones']);
+    expect(homeCardIds(['chapters'], [], 2)).toEqual(['reminders', 'review', 'milestones']);
+  });
+  it('adds only pinned lists, after the built-in cards', () => {
+    const lists = [
+      { id: 'a', pinned: true },
+      { id: 'b' },
+      { id: 'c', pinned: false },
+    ];
+    expect(homeCardIds([], lists, 0)).toEqual(['reminders', 'chapters', 'milestones', 'list:a']);
   });
 });
 

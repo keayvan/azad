@@ -26,6 +26,7 @@ const PATHS: Record<string, ReactNode> = {
   trash: <path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13" />,
   plus: <path d="M12 5v14M5 12h14" />,
   wave: <path d="M3 12c3-6 6 6 9 0s6 6 9 0" />,
+  close: <path d="M6 6l12 12M18 6L6 18" />,
   list: <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />,
   grip: (
     <>

@@ -5,12 +5,12 @@ import { update, useStore } from './store';
 import { Icon, ListEditor, Screen, Toggle } from './ui';
 import { moveItem, uid } from './util';
 
-function ListScreen({ id, onClose }: { id: string; onClose: () => void }) {
+export function ListScreen({ id, onClose }: { id: string; onClose: () => void }) {
   const s = useStore();
   const { t } = useT();
   const list = s.lists.find((l) => l.id === id);
   if (!list) return null;
-  const patch = (p: { title?: string; items?: string[]; forCraving?: boolean }) =>
+  const patch = (p: { title?: string; items?: string[]; forCraving?: boolean; pinned?: boolean }) =>
     update((cur) => ({ lists: cur.lists.map((l) => (l.id === id ? { ...l, ...p } : l)) }));
   return (
     <Screen
@@ -31,6 +31,7 @@ function ListScreen({ id, onClose }: { id: string; onClose: () => void }) {
       />
       {list.items.length === 0 && <p className="note">{t('lists.noItems')}</p>}
       <ListEditor items={list.items} onChange={(items) => patch({ items })} placeholder={t('lists.itemPlaceholder')} />
+      <Toggle checked={list.pinned === true} label={t('lists.pin')} onChange={(v) => patch({ pinned: v })} />
       <Toggle checked={list.forCraving} label={t('lists.forCraving')} onChange={(v) => patch({ forCraving: v })} />
       <button
         className="btn ghost small"
@@ -45,6 +46,38 @@ function ListScreen({ id, onClose }: { id: string; onClose: () => void }) {
         {t('lists.delete')}
       </button>
     </Screen>
+  );
+}
+
+/** A list shown as a card on the home page. */
+export function PinnedList({ id, onOpen, onRemove }: { id: string; onOpen: (id: string) => void; onRemove?: () => void }) {
+  const s = useStore();
+  const { t } = useT();
+  const list = s.lists.find((l) => l.id === id);
+  if (!list) return null;
+  return (
+    <div className="card pinned">
+      <div className="pinned-head">
+        <button className="pinned-title" onClick={() => onOpen(id)} aria-label={t('home.open')}>
+          <b>{list.title || t('lists.titlePlaceholder')}</b>
+          <Icon name="chevron" size={18} />
+        </button>
+        {onRemove && (
+          <button className="icon-btn" aria-label={t('home.hide')} onClick={onRemove}>
+            <Icon name="close" size={18} />
+          </button>
+        )}
+      </div>
+      {list.items.length === 0 ? (
+        <p className="note">{t('lists.pinned.empty')}</p>
+      ) : (
+        <ul className="pinned-items">
+          {list.items.map((it, i) => (
+            <li key={i}>{it}</li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 

@@ -3,7 +3,7 @@ import { ChaptersScreen } from './Chapters';
 import { CravingScreen } from './Craving';
 import { Dash } from './Dash';
 import { Insights } from './Insights';
-import { Lists } from './Lists';
+import { ListScreen, Lists } from './Lists';
 import { LastScreen, PrepHome, StepScreen } from './Prep';
 import { RemindersScreen } from './Reminders';
 import { ReviewScreen } from './Review';
@@ -15,7 +15,7 @@ import type { StepId } from './store';
 import { Icon } from './ui';
 
 type Tab = 'home' | 'lists' | 'insights' | 'settings';
-type Overlay = { name: 'step'; id: StepId } | { name: 'last' } | { name: 'craving' } | { name: 'review' } | { name: 'reminders' } | { name: 'chapters' } | null;
+type Overlay = { name: 'step'; id: StepId } | { name: 'last' } | { name: 'craving' } | { name: 'review' } | { name: 'reminders' } | { name: 'chapters' } | { name: 'list'; id: string } | null;
 
 export default function App() {
   const s = useStore();
@@ -47,9 +47,15 @@ export default function App() {
     <div className="app">
       {tab === 'home' &&
         (s.quitAt == null ? (
-          <PrepHome onOpen={(id) => setOverlay({ name: 'step', id })} onLast={() => setOverlay({ name: 'last' })} />
+          <PrepHome
+            onOpen={(id) => setOverlay({ name: 'step', id })}
+            onLast={() => setOverlay({ name: 'last' })}
+            onOpenList={(id) => setOverlay({ name: 'list', id })}
+          />
         ) : (
-          <Dash onCraving={() => setOverlay({ name: 'craving' })} onReview={() => setOverlay({ name: 'review' })} onReminders={() => setOverlay({ name: 'reminders' })} onChapters={() => setOverlay({ name: 'chapters' })} />
+          <Dash onCraving={() => setOverlay({ name: 'craving' })} onReview={() => setOverlay({ name: 'review' })} onReminders={() => setOverlay({ name: 'reminders' })} onChapters={() => setOverlay({ name: 'chapters' })}
+            onOpenList={(id) => setOverlay({ name: 'list', id })}
+          />
         ))}
       {tab === 'lists' && <Lists />}
       {tab === 'insights' && <Insights />}
@@ -72,6 +78,7 @@ export default function App() {
       {overlay?.name === 'review' && <ReviewScreen onClose={close} />}
       {overlay?.name === 'reminders' && <RemindersScreen onClose={close} />}
       {overlay?.name === 'chapters' && <ChaptersScreen onClose={close} />}
+      {overlay?.name === 'list' && <ListScreen id={overlay.id} onClose={close} />}
     </div>
   );
 }

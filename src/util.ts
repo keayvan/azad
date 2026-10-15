@@ -150,3 +150,9 @@ export function orderBy<T>(ids: T[], saved: T[]): T[] {
   const known = saved.filter((x) => ids.includes(x));
   return [...known, ...ids.filter((x) => !known.includes(x))];
 }
+
+/** The cards on the home page after quitting, before the person's own order is applied. */
+export function homeCardIds(hidden: string[], lists: { id: string; pinned?: boolean }[], reviewTotal: number): string[] {
+  const base = ['reminders', 'chapters', ...(reviewTotal > 0 ? ['review'] : []), 'milestones'].filter((id) => !hidden.includes(id));
+  return [...base, ...lists.filter((l) => l.pinned).map((l) => `list:${l.id}`)];
+}

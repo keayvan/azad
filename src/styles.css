@@ -1034,3 +1034,34 @@ select:focus {
 .steps .drag-row .step {
   width: auto;
 }
+
+/* ---------- lists pinned to the home page ---------- */
+.pinned-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pinned-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: start;
+}
+
+.pinned-title b {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.pinned-items {
+  margin: 8px 0 0;
+  padding-inline-start: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

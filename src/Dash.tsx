@@ -3,7 +3,8 @@ import { useT } from './i18n';
 import { useSortable } from './sortable';
 import { costPerCigarette, update, useStore } from './store';
 import { Brand, Icon } from './ui';
-import { MILESTONES, cigarettesAvoided, moneySaved, moveItem, orderBy, reviewStats, splitDuration } from './util';
+import { PinnedList } from './Lists';
+import { MILESTONES, cigarettesAvoided, homeCardIds, moneySaved, moveItem, orderBy, reviewStats, splitDuration } from './util';
 
 function useNow(intervalMs = 1000) {
   const [now, setNow] = useState(() => Date.now());
@@ -14,13 +15,25 @@ function useNow(intervalMs = 1000) {
   return now;
 }
 
-export function Dash({ onCraving, onReview, onReminders, onChapters }: { onCraving: () => void; onReview: () => void; onReminders: () => void; onChapters: () => void }) {
+export function Dash({
+  onCraving,
+  onReview,
+  onReminders,
+  onChapters,
+  onOpenList,
+}: {
+  onCraving: () => void;
+  onReview: () => void;
+  onReminders: () => void;
+  onChapters: () => void;
+  onOpenList: (id: string) => void;
+}) {
   const s = useStore();
   const { t, num, date } = useT();
   const now = useNow();
   const sort = useSortable((from, to) => {
     update((cur) => {
-      const avail = ['reminders', 'chapters', ...(reviewStats(cur.beliefs).total > 0 ? ['review'] : []), 'milestones'];
+      const avail = homeCardIds(cur.hiddenCards, cur.lists, reviewStats(cur.beliefs).total);
       return { dashOrder: moveItem(orderBy(avail, cur.dashOrder), from, to) };
     });
   });
@@ -34,7 +47,13 @@ export function Dash({ onCraving, onReview, onReminders, onChapters }: { onCravi
   const today = new Date(now).toDateString();
   const todays = s.cravings.filter((c) => new Date(c.at).toDateString() === today);
   const passed = todays.filter((c) => c.outcome === 'passed').length;
-  const cards = orderBy(['reminders', 'chapters', ...(rev.total > 0 ? ['review'] : []), 'milestones'], s.dashOrder);
+  const cards = orderBy(homeCardIds(s.hiddenCards, s.lists, rev.total), s.dashOrder);
+  const hideCard = (id: string) =>
+    update((cur) =>
+      id.startsWith('list:')
+        ? { lists: cur.lists.map((l) => (l.id === id.slice(5) ? { ...l, pinned: false } : l)) }
+        : { hiddenCards: [...cur.hiddenCards, id] },
+    );
   const linkCard = (title: string, desc: string, onClick: () => void) => (
     <button className="step" onClick={onClick}>
       <span className="txt">
@@ -52,7 +71,7 @@ export function Dash({ onCraving, onReview, onReminders, onChapters }: { onCravi
         return linkCard(t('dash.chapters'), t('dash.chapters.desc'), onChapters);
       case 'review':
         return linkCard(t('review.title'), t('review.card.progress', { done: num(rev.reviewed), total: num(rev.total) }), onReview);
-      default:
+      case 'milestones':
         return (
           <div className="card">
             <h2>{t('dash.milestones')}</h2>
@@ -68,6 +87,8 @@ export function Dash({ onCraving, onReview, onReminders, onChapters }: { onCravi
             </p>
           </div>
         );
+      default:
+        return id.startsWith('list:') ? <PinnedList id={id.slice(5)} onOpen={onOpenList} /> : null;
     }
   };
   return (
@@ -137,6 +158,9 @@ export function Dash({ onCraving, onReview, onReminders, onChapters }: { onCravi
               <Icon name="grip" size={20} />
             </button>
             <div className="grow">{renderCard(id)}</div>
+            <button className="icon-btn" aria-label={t('home.hide')} onClick={() => hideCard(id)}>
+              <Icon name="close" size={18} />
+            </button>
           </div>
         ))}
       </div>
