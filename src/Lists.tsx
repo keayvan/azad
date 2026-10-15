@@ -33,6 +33,8 @@ export function Lists() {
         </button>
       </div>
 
+      <p className="note">{t('lists.note')}</p>
+
       {adding && (
         <form
           className="card settings-group"

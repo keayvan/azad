@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 export type Theme = 'system' | 'light' | 'dark';
 export type Lang = 'fa' | 'en';
-export type StepId = 'habit' | 'beliefs' | 'triggers' | 'book' | 'why' | 'events' | 'tools' | 'ready';
+export type StepId = 'habit' | 'beliefs' | 'triggers' | 'book' | 'why' | 'events' | 'ready';
 
 export type Stance = 'still' | 'partly' | 'no';
 
@@ -67,7 +67,7 @@ export interface State {
 
 export const STORAGE_KEY = 'azad.state.v1';
 
-export const STEPS: StepId[] = ['habit', 'beliefs', 'triggers', 'book', 'why', 'events', 'tools', 'ready'];
+export const STEPS: StepId[] = ['habit', 'beliefs', 'triggers', 'book', 'why', 'events', 'ready'];
 export const REQUIRED: StepId[] = ['beliefs', 'triggers', 'book', 'ready'];
 /** Steps that stay closed until the book is finished (the book sets reasons aside until then). */
 export const AFTER_BOOK: StepId[] = ['why'];
@@ -77,6 +77,9 @@ const DEFAULT_TOOLS: Record<Lang, string[]> = {
   en: ['20 push-ups', '20 squats', 'Slow deep breathing', 'Cold shower', 'A glass of water', 'A short walk'],
   fa: ['۲۰ شنا', '۲۰ اسکوات', 'نفس عمیق و آهسته', 'دوش آب سرد', 'یک لیوان آب', 'کمی پیاده‌روی'],
 };
+
+export const TOOLS_LIST_ID = 'tools';
+const MY_LIST_TITLE: Record<Lang, string> = { en: 'My list', fa: 'فهرست من' };
 
 function detectLang(): Lang {
   try {
@@ -103,8 +106,8 @@ export function defaults(lang: Lang = detectLang()): State {
     reasons: [],
     events: [],
     triggers: [],
-    tools: [...DEFAULT_TOOLS[lang]],
-    lists: [],
+    tools: [],
+    lists: [{ id: TOOLS_LIST_ID, title: MY_LIST_TITLE[lang], items: [...DEFAULT_TOOLS[lang]], forCraving: true }],
     readPct: 0,
     chaptersRead: [],
     readyChecks: Array(READY_CHECKS).fill(false),
@@ -141,8 +144,6 @@ export function stepDone(s: State, id: StepId): boolean {
       return s.triggers.length > 0;
     case 'book':
       return s.readPct >= 100;
-    case 'tools':
-      return s.tools.length > 0;
     case 'ready':
       return s.readyChecks.length === READY_CHECKS && s.readyChecks.every(Boolean);
   }
@@ -160,13 +161,33 @@ export function isUnlocked(s: State): boolean {
   return requiredDone(s) === REQUIRED.length;
 }
 
+/**
+ * Older versions kept one flat `tools` list. It now lives in the Lists tab as "My list",
+ * so anything still in `tools` is moved there.
+ */
+export function normalizeState(s: State): State {
+  const lists = [...(s.lists ?? [])];
+  const tools = s.tools ?? [];
+  if (tools.length === 0) return { ...s, tools: [], lists };
+  const i = lists.findIndex((l) => l.id === TOOLS_LIST_ID);
+  if (i >= 0) {
+    lists[i] = { ...lists[i], items: Array.from(new Set([...lists[i].items, ...tools])) };
+  } else {
+    lists.unshift({ id: TOOLS_LIST_ID, title: MY_LIST_TITLE[s.lang] ?? MY_LIST_TITLE.en, items: [...tools], forCraving: true });
+  }
+  return { ...s, tools: [], lists };
+}
+
 /** Returns a full state from untrusted JSON text, or null if it is not a backup. */
 export function parseBackup(text: string): State | null {
   try {
     const o = JSON.parse(text);
     if (!o || typeof o !== 'object' || o.v !== 1) return null;
     if (!Array.isArray(o.beliefs) || !Array.isArray(o.cravings) || !Array.isArray(o.triggers)) return null;
-    return { ...defaults(), ...o };
+    const base: State = { ...defaults(), ...o };
+    // an older state has no lists yet, so do not seed the default list on top of the person's own items
+    if (o.lists === undefined) base.lists = [];
+    return normalizeState(base);
   } catch {
     return null;
   }
@@ -177,7 +198,11 @@ function load(): State {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = parseBackup(raw);
-      if (parsed) return parsed;
+      if (parsed) {
+        // write back right away so a migration (see normalizeState) is saved even before the first edit
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        return parsed;
+      }
     }
   } catch {
     // storage unavailable: fall through to defaults

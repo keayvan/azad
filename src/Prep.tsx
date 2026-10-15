@@ -388,14 +388,6 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
             <p className="note">{t('book.hint')}</p>
           </>
         );
-      case 'tools':
-        return (
-          <>
-            <p className="note">{t('tools.hint')}</p>
-            <ListEditor items={s.tools} onChange={(tools) => update({ tools })} placeholder={t('tools.placeholder')} />
-            <p className="note">{t('tools.note')}</p>
-          </>
-        );
       case 'ready':
         return (
           <>

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { normalizeState } from './store';
 import { moveItem, cravingPool, parseNum, toggleChapter, cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
 import { costPerCigarette, defaults, isLocked, isUnlocked, parseBackup, stepDone } from './store';
 import type { Craving } from './store';
@@ -68,6 +69,42 @@ describe('reviewStats', () => {
       { belief: '   ', now: 'no' },
     ];
     expect(reviewStats(beliefs)).toEqual({ total: 3, reviewed: 2, gone: 1 });
+  });
+});
+
+describe('normalizeState', () => {
+  it('moves old flat tools into a "My list" list that is offered on cravings', () => {
+    const s = defaults('en');
+    s.lists = [];
+    s.tools = ['walk', 'water'];
+    const n = normalizeState(s);
+    expect(n.tools).toEqual([]);
+    expect(n.lists).toHaveLength(1);
+    expect(n.lists[0]).toMatchObject({ id: 'tools', title: 'My list', items: ['walk', 'water'], forCraving: true });
+  });
+  it('merges into an existing "tools" list without duplicates and leaves other lists alone', () => {
+    const s = defaults('fa');
+    s.lists = [
+      { id: 'tools', title: 'فهرست من', items: ['a'], forCraving: true },
+      { id: 'x', title: 'other', items: ['z'], forCraving: false },
+    ];
+    s.tools = ['a', 'b'];
+    const n = normalizeState(s);
+    expect(n.lists[0].items).toEqual(['a', 'b']);
+    expect(n.lists[1].items).toEqual(['z']);
+  });
+  it('gives new people one starter list and no flat tools', () => {
+    const s = defaults('en');
+    expect(s.tools).toEqual([]);
+    expect(s.lists).toHaveLength(1);
+    expect(s.lists[0].items.length).toBeGreaterThan(0);
+  });
+  it('does not seed the starter list on top of an older backup that only had tools', () => {
+    const old = { ...defaults('en'), tools: ['mine'] } as Record<string, unknown>;
+    delete old.lists;
+    const parsed = parseBackup(JSON.stringify(old));
+    expect(parsed?.lists).toHaveLength(1);
+    expect(parsed?.lists[0].items).toEqual(['mine']);
   });
 });
 
