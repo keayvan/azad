@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useT } from './i18n';
-import { parseNum } from './util';
+import { useSortable } from './sortable';
+import { moveItem, parseNum } from './util';
 
 const PATHS: Record<string, ReactNode> = {
   home: <path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
@@ -26,6 +27,16 @@ const PATHS: Record<string, ReactNode> = {
   plus: <path d="M12 5v14M5 12h14" />,
   wave: <path d="M3 12c3-6 6 6 9 0s6 6 9 0" />,
   list: <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />,
+  grip: (
+    <>
+      <circle cx="9" cy="6" r="1.5" fill="currentColor" />
+      <circle cx="15" cy="6" r="1.5" fill="currentColor" />
+      <circle cx="9" cy="12" r="1.5" fill="currentColor" />
+      <circle cx="15" cy="12" r="1.5" fill="currentColor" />
+      <circle cx="9" cy="18" r="1.5" fill="currentColor" />
+      <circle cx="15" cy="18" r="1.5" fill="currentColor" />
+    </>
+  ),
 };
 
 export function Icon({ name, size = 22 }: { name: keyof typeof PATHS; size?: number }) {
@@ -162,6 +173,9 @@ export function ListEditor({
 }) {
   const { t } = useT();
   const [draft, setDraft] = useState('');
+  const latest = useRef(items);
+  latest.current = items;
+  const sort = useSortable((from, to) => onChange(moveItem(latest.current, from, to)));
   const add = () => {
     const v = draft.trim();
     if (!v) return;
@@ -170,9 +184,19 @@ export function ListEditor({
   };
   return (
     <div className="list-editor">
-      <ul>
+      <ul ref={sort.ref as React.RefObject<HTMLUListElement>}>
         {items.map((it, i) => (
-          <li key={i} className="row">
+          <li key={i} data-row className={`row${sort.dragging === i ? ' dragging' : ''}`}>
+            {items.length > 1 && (
+              <button
+                className="grip"
+                aria-label={t('common.reorder')}
+                onPointerDown={(e) => sort.start(e, i)}
+                onKeyDown={(e) => sort.onKey(e, i, items.length)}
+              >
+                <Icon name="grip" size={18} />
+              </button>
+            )}
             <span>{it}</span>
             <button
               className="icon-btn danger"

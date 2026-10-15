@@ -924,3 +924,47 @@ select:focus {
   background: var(--card) !important;
   padding-inline: 14px !important;
 }
+
+/* ---------- drag to reorder ---------- */
+.grip {
+  flex: none;
+  width: 30px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: var(--text3);
+  cursor: grab;
+  touch-action: none;
+  border-radius: 8px;
+}
+
+.grip:focus-visible {
+  outline: 2px solid var(--primary);
+}
+
+.lists-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.title-row .list-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.dragging {
+  border-color: var(--primary) !important;
+  background: var(--accent-soft) !important;
+}
+
+.list-editor .row > span {
+  flex: 1;
+  min-width: 0;
+}

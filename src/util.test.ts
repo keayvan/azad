@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cravingPool, parseNum, toggleChapter, cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
+import { moveItem, cravingPool, parseNum, toggleChapter, cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
 import { costPerCigarette, defaults, isLocked, isUnlocked, parseBackup, stepDone } from './store';
 import type { Craving } from './store';
 
@@ -68,6 +68,21 @@ describe('reviewStats', () => {
       { belief: '   ', now: 'no' },
     ];
     expect(reviewStats(beliefs)).toEqual({ total: 3, reviewed: 2, gone: 1 });
+  });
+});
+
+describe('moveItem', () => {
+  it('moves an item forward and backward without changing the original', () => {
+    const a = ['a', 'b', 'c', 'd'];
+    expect(moveItem(a, 0, 2)).toEqual(['b', 'c', 'a', 'd']);
+    expect(moveItem(a, 3, 1)).toEqual(['a', 'd', 'b', 'c']);
+    expect(a).toEqual(['a', 'b', 'c', 'd']);
+  });
+  it('ignores impossible moves', () => {
+    const a = ['a', 'b'];
+    expect(moveItem(a, 0, 0)).toBe(a);
+    expect(moveItem(a, -1, 1)).toBe(a);
+    expect(moveItem(a, 0, 5)).toBe(a);
   });
 });
 

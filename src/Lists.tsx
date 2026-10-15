@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useT } from './i18n';
 import { update, useStore } from './store';
+import { useSortable } from './sortable';
 import { Icon, ListEditor, Toggle } from './ui';
-import { uid } from './util';
+import { moveItem, uid } from './util';
 
 export function Lists() {
   const s = useStore();
@@ -17,6 +18,7 @@ export function Lists() {
     setTitle('');
     setAdding(false);
   };
+  const sort = useSortable((from, to) => update((cur) => ({ lists: moveItem(cur.lists, from, to) })));
   const patch = (id: string, p: { title?: string; items?: string[]; forCraving?: boolean }) =>
     update((cur) => ({ lists: cur.lists.map((l) => (l.id === id ? { ...l, ...p } : l)) }));
 
@@ -70,15 +72,28 @@ export function Lists() {
         </div>
       )}
 
-      {s.lists.map((l) => (
-        <div key={l.id} className="card settings-group">
-          <input
-            className="list-title"
-            value={l.title}
-            maxLength={60}
-            aria-label={t('lists.titlePlaceholder')}
-            onChange={(e) => patch(l.id, { title: e.target.value })}
-          />
+      <div className="lists-wrap" ref={sort.ref as React.RefObject<HTMLDivElement>}>
+      {s.lists.map((l, i) => (
+        <div key={l.id} data-row className={`card settings-group${sort.dragging === i ? ' dragging' : ''}`}>
+          <div className="title-row">
+            {s.lists.length > 1 && (
+              <button
+                className="grip"
+                aria-label={t('common.reorder')}
+                onPointerDown={(e) => sort.start(e, i)}
+                onKeyDown={(e) => sort.onKey(e, i, s.lists.length)}
+              >
+                <Icon name="grip" size={20} />
+              </button>
+            )}
+            <input
+              className="list-title"
+              value={l.title}
+              maxLength={60}
+              aria-label={t('lists.titlePlaceholder')}
+              onChange={(e) => patch(l.id, { title: e.target.value })}
+            />
+          </div>
           {l.items.length === 0 && <p className="note">{t('lists.noItems')}</p>}
           <ListEditor items={l.items} onChange={(items) => patch(l.id, { items })} placeholder={t('lists.itemPlaceholder')} />
           <Toggle checked={l.forCraving} label={t('lists.forCraving')} onChange={(v) => patch(l.id, { forCraving: v })} />
@@ -93,6 +108,7 @@ export function Lists() {
           </button>
         </div>
       ))}
+      </div>
     </div>
   );
 }
