@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { toggleChapter, cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
+import { parseNum, toggleChapter, cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
 import { costPerCigarette, defaults, isLocked, isUnlocked, parseBackup, stepDone } from './store';
 import type { Craving } from './store';
 
@@ -68,6 +68,30 @@ describe('reviewStats', () => {
       { belief: '   ', now: 'no' },
     ];
     expect(reviewStats(beliefs)).toEqual({ total: 3, reviewed: 2, gone: 1 });
+  });
+});
+
+describe('parseNum', () => {
+  it('reads plain and partial decimals', () => {
+    expect(parseNum('50')).toBe(50);
+    expect(parseNum('0.5')).toBe(0.5);
+    expect(parseNum('0.')).toBe(0);
+    expect(parseNum('0,5')).toBe(0.5);
+  });
+  it('reads Persian and Arabic digits and separators', () => {
+    expect(parseNum('۰٫۵')).toBe(0.5);
+    expect(parseNum('۱۰۰٬۰۰۰')).toBe(100000);
+    expect(parseNum('٣٠')).toBe(30);
+  });
+  it('treats comma groups as thousands only when they look like thousands', () => {
+    expect(parseNum('100,000')).toBe(100000);
+    expect(parseNum('1,5')).toBe(1.5);
+  });
+  it('returns null for empty or junk', () => {
+    expect(parseNum('')).toBeNull();
+    expect(parseNum('.')).toBeNull();
+    expect(parseNum('abc')).toBeNull();
+    expect(parseNum('-3')).toBeNull();
   });
 });
 

@@ -4,7 +4,7 @@ import { ChapterList } from './Chapters';
 import { useT } from './i18n';
 import { CURRENCIES, READY_CHECKS, REQUIRED, STEPS, costPerCigarette, isLocked, isUnlocked, requiredDone, stepDone, update, useStore } from './store';
 import type { StepId } from './store';
-import { Brand, Icon, ListEditor, Screen, Segmented, Toggle } from './ui';
+import { Brand, Icon, ListEditor, NumField, Screen, Segmented, Toggle } from './ui';
 import { fromLocalInput, lifetimeCost, splitDuration, toLocalInput } from './util';
 
 function PlanCard() {
@@ -99,16 +99,8 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
       case 'habit': {
         const cost = costPerCigarette(s);
         const known = CURRENCIES.includes(s.currency);
-        const numInput = (value: number | null, set: (v: number | null) => void, mode: 'numeric' | 'decimal' = 'decimal') => (
-          <input
-            type="number"
-            inputMode={mode}
-            min={0}
-            step="any"
-            value={value ?? ''}
-            onChange={(e) => set(e.target.value === '' ? null : Math.max(0, Number(e.target.value)))}
-          />
-        );
+        const lifetime = lifetimeCost(cost, s.perDay, s.yearsLeft);
+        const rollOdd = s.smokeType === 'roll' && s.rollPerCig > 0 && (s.rollPerCig < 0.2 || s.rollPerCig > 2);
         return (
           <>
             <Segmented
@@ -122,7 +114,7 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
             <div className="grid2">
               <label className="field">
                 {t('habit.perDay')}
-                {numInput(s.perDay, (perDay) => update({ perDay }), 'numeric')}
+                <NumField value={s.perDay} onChange={(perDay) => update({ perDay })} />
               </label>
               <label className="field">
                 {t('habit.currency')}
@@ -148,71 +140,49 @@ export function StepScreen({ id, onClose }: { id: StepId; onClose: () => void })
                 <>
                   <label className="field">
                     {t('habit.price')}
-                    {numInput(s.packPrice, (packPrice) => update({ packPrice }))}
+                    <NumField value={s.packPrice} onChange={(packPrice) => update({ packPrice })} />
                   </label>
                   <label className="field">
                     {t('habit.packSize')}
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      min={1}
-                      value={s.packSize}
-                      onChange={(e) => update({ packSize: Math.max(1, Number(e.target.value) || 20) })}
-                    />
+                    <NumField value={s.packSize} onChange={(v) => update({ packSize: v ?? 0 })} />
                   </label>
                 </>
               ) : (
                 <>
                   <label className="field">
                     {t('habit.rollPrice')}
-                    {numInput(s.rollPrice, (rollPrice) => update({ rollPrice }))}
+                    <NumField value={s.rollPrice} onChange={(rollPrice) => update({ rollPrice })} />
                   </label>
                   <label className="field">
                     {t('habit.rollGrams')}
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      min={1}
-                      step="any"
-                      value={s.rollGrams}
-                      onChange={(e) => update({ rollGrams: Math.max(1, Number(e.target.value) || 30) })}
-                    />
+                    <NumField value={s.rollGrams} onChange={(v) => update({ rollGrams: v ?? 0 })} />
                   </label>
                   <label className="field">
                     {t('habit.rollPerCig')}
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      min={0.1}
-                      step="any"
-                      value={s.rollPerCig}
-                      onChange={(e) => update({ rollPerCig: Math.max(0.1, Number(e.target.value) || 0.7) })}
-                    />
+                    <NumField value={s.rollPerCig} onChange={(v) => update({ rollPerCig: v ?? 0 })} />
                   </label>
                 </>
               )}
             </div>
             <label className="field">
               {t('habit.years')}
-              <input
-                type="number"
-                inputMode="numeric"
-                min={1}
-                value={s.yearsLeft}
-                onChange={(e) => update({ yearsLeft: Math.max(1, Number(e.target.value) || 30) })}
-              />
+              <NumField value={s.yearsLeft} onChange={(v) => update({ yearsLeft: v ?? 0 })} />
             </label>
             {cost > 0 && (
               <div className="card">
                 <p>{t('habit.perCig', { cost: num(cost, 2), currency: s.currency })}</p>
+                {s.smokeType === 'roll' && s.rollGrams > 0 && s.rollPerCig > 0 ? (
+                  <p className="note">{t('habit.rollPouch', { n: num(s.rollGrams / s.rollPerCig, 1) })}</p>
+                ) : null}
                 {s.perDay ? <p className="note">{t('habit.perMonth', { cost: num(cost * s.perDay * 30), currency: s.currency })}</p> : null}
-                {s.perDay ? (
+                {lifetime > 0 ? (
                   <p className="note">
-                    {t('habit.lifetime', { cost: num(lifetimeCost(cost, s.perDay, s.yearsLeft)), currency: s.currency, years: num(s.yearsLeft) })}
+                    {t('habit.lifetime', { cost: num(lifetime), currency: s.currency, years: num(s.yearsLeft) })}
                   </p>
                 ) : null}
               </div>
             )}
+            {rollOdd && <p className="warn">{t('habit.rollCheck')}</p>}
             <p className="note">{s.smokeType === 'roll' ? t('habit.rollNote') : t('habit.note')}</p>
           </>
         );

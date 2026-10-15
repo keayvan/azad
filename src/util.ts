@@ -115,3 +115,17 @@ export function toggleChapter(readPct: number, chaptersRead: number[], n: number
   const next = base.includes(n) ? base.filter((x) => x !== n) : [...base, n];
   return { chaptersRead: next, readPct: Math.round((next.length / total) * 100) };
 }
+
+const FA_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
+const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+
+/** Reads a number typed by a person: Persian or Arabic digits, ',' or '٫' as decimal point, thousands separators. */
+export function parseNum(text: string): number | null {
+  let t = text.trim();
+  t = t.replace(/[۰-۹]/g, (d) => String(FA_DIGITS.indexOf(d))).replace(/[٠-٩]/g, (d) => String(AR_DIGITS.indexOf(d)));
+  t = t.replace(/[\s٬]/g, '').replace(/٫/g, '.');
+  if (t === '') return null;
+  t = /^\d{1,3}(,\d{3})+(\.\d+)?$/.test(t) ? t.replace(/,/g, '') : t.replace(/,/g, '.');
+  const n = Number(t);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}

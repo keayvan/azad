@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useT } from './i18n';
+import { parseNum } from './util';
 
 const PATHS: Record<string, ReactNode> = {
   home: <path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
@@ -42,6 +43,27 @@ export function Icon({ name, size = 22 }: { name: keyof typeof PATHS; size?: num
     >
       {PATHS[name]}
     </svg>
+  );
+}
+
+/** A text field for numbers that keeps what the person is typing, so clearing or typing '0.' never snaps back. */
+export function NumField({ value, onChange }: { value: number | null; onChange: (v: number | null) => void }) {
+  const [text, setText] = useState(value ? String(value) : '');
+  useEffect(() => {
+    // follow outside changes (backup restore, reset) without fighting the person's typing
+    if ((parseNum(text) ?? 0) !== (value ?? 0)) setText(value ? String(value) : '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      value={text}
+      onChange={(e) => {
+        setText(e.target.value);
+        onChange(parseNum(e.target.value));
+      }}
+    />
   );
 }
 
