@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useT } from './i18n';
-import { costPerCigarette, getState, update, useStore } from './store';
+import { costPerCigarette, update, useStore } from './store';
 import { Chips, Icon, Screen } from './ui';
-import { lifetimeCost, pickSuggestion, uid } from './util';
+import { cravingPool, lifetimeCost, pickSuggestion, uid } from './util';
 import type { Ctx } from './util';
 
 const PLACES = ['home', 'work', 'car', 'outside', 'social', 'other'];
@@ -14,6 +14,7 @@ export function CravingScreen({ onClose }: { onClose: () => void }) {
   const s = useStore();
   const { t, num } = useT();
   const lifetime = lifetimeCost(costPerCigarette(s), s.perDay, s.yearsLeft);
+  const pool = cravingPool(s.tools, s.lists);
   const [step, setStep] = useState(0);
   const [ctx, setCtx] = useState<Ctx>({ place: '', feeling: '', before: '' });
   const [reminder] = useState(() => 1 + Math.floor(Math.random() * REMINDERS));
@@ -37,20 +38,20 @@ export function CravingScreen({ onClose }: { onClose: () => void }) {
       setStep(step + 1);
       return;
     }
-    const pick = pickSuggestion(s.tools, s.cravings, next);
+    const pick = pickSuggestion(pool, s.cravings, next);
     setSuggestion(pick);
     setShown(pick ? [pick] : []);
     setStep(3);
   }
 
   function another() {
-    const pick = pickSuggestion(s.tools, s.cravings, ctx, shown);
+    const pick = pickSuggestion(pool, s.cravings, ctx, shown);
     if (pick) {
       setSuggestion(pick);
       setShown([...shown, pick]);
     } else {
       setShown(suggestion ? [suggestion] : []);
-      setSuggestion(pickSuggestion(s.tools, s.cravings, ctx, suggestion ? [suggestion] : []));
+      setSuggestion(pickSuggestion(pool, s.cravings, ctx, suggestion ? [suggestion] : []));
     }
     setTried(false);
   }
@@ -168,7 +169,7 @@ export function CravingScreen({ onClose }: { onClose: () => void }) {
                 <button className="btn small" onClick={() => setTried(true)}>
                   {t('craving.try')}
                 </button>
-                <button className="btn small ghost" onClick={another} disabled={getState().tools.length < 2}>
+                <button className="btn small ghost" onClick={another} disabled={pool.length < 2}>
                   {t('craving.another')}
                 </button>
               </div>

@@ -129,3 +129,9 @@ export function parseNum(text: string): number | null {
   const n = Number(t);
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
+
+/** Everything the craving screen may suggest: the default tools plus lists the person opted in. */
+export function cravingPool(tools: string[], lists: { items: string[]; forCraving: boolean }[]): string[] {
+  const all = [...tools, ...lists.filter((l) => l.forCraving).flatMap((l) => l.items)];
+  return Array.from(new Set(all.map((x) => x.trim()).filter(Boolean)));
+}

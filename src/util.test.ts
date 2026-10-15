@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseNum, toggleChapter, cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
+import { cravingPool, parseNum, toggleChapter, cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
 import { costPerCigarette, defaults, isLocked, isUnlocked, parseBackup, stepDone } from './store';
 import type { Craving } from './store';
 
@@ -68,6 +68,16 @@ describe('reviewStats', () => {
       { belief: '   ', now: 'no' },
     ];
     expect(reviewStats(beliefs)).toEqual({ total: 3, reviewed: 2, gone: 1 });
+  });
+});
+
+describe('cravingPool', () => {
+  it('adds only opted-in lists and drops blanks and duplicates', () => {
+    const lists = [
+      { items: ['walk', ' ', 'call a friend'], forCraving: true },
+      { items: ['movies to watch'], forCraving: false },
+    ];
+    expect(cravingPool(['walk', 'water'], lists)).toEqual(['walk', 'water', 'call a friend']);
   });
 });
 

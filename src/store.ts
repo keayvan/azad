@@ -19,6 +19,14 @@ export interface PlannedEvent {
   line: string;
 }
 
+export interface UserList {
+  id: string;
+  title: string;
+  items: string[];
+  /** When true, the items can be offered on the craving screen. */
+  forCraving: boolean;
+}
+
 export interface Craving {
   id: string;
   at: number;
@@ -47,6 +55,7 @@ export interface State {
   events: PlannedEvent[];
   triggers: string[];
   tools: string[];
+  lists: UserList[];
   readPct: number;
   chaptersRead: number[];
   readyChecks: boolean[];
@@ -95,6 +104,7 @@ export function defaults(lang: Lang = detectLang()): State {
     events: [],
     triggers: [],
     tools: [...DEFAULT_TOOLS[lang]],
+    lists: [],
     readPct: 0,
     chaptersRead: [],
     readyChecks: Array(READY_CHECKS).fill(false),

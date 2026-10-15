@@ -3,6 +3,7 @@ import { ChaptersScreen } from './Chapters';
 import { CravingScreen } from './Craving';
 import { Dash } from './Dash';
 import { Insights } from './Insights';
+import { Lists } from './Lists';
 import { LastScreen, PrepHome, StepScreen } from './Prep';
 import { RemindersScreen } from './Reminders';
 import { ReviewScreen } from './Review';
@@ -13,7 +14,7 @@ import { useStore } from './store';
 import type { StepId } from './store';
 import { Icon } from './ui';
 
-type Tab = 'home' | 'insights' | 'settings';
+type Tab = 'home' | 'lists' | 'insights' | 'settings';
 type Overlay = { name: 'step'; id: StepId } | { name: 'last' } | { name: 'craving' } | { name: 'review' } | { name: 'reminders' } | { name: 'chapters' } | null;
 
 export default function App() {
@@ -35,8 +36,9 @@ export default function App() {
   }, [s.lang, s.theme, t]);
 
   const close = () => setOverlay(null);
-  const tabs: { id: Tab; icon: 'home' | 'chart' | 'sliders'; label: string }[] = [
+  const tabs: { id: Tab; icon: 'home' | 'list' | 'chart' | 'sliders'; label: string }[] = [
     { id: 'home', icon: 'home', label: t('nav.home') },
+    { id: 'lists', icon: 'list', label: t('nav.lists') },
     { id: 'insights', icon: 'chart', label: t('nav.insights') },
     { id: 'settings', icon: 'sliders', label: t('nav.settings') },
   ];
@@ -49,6 +51,7 @@ export default function App() {
         ) : (
           <Dash onCraving={() => setOverlay({ name: 'craving' })} onReview={() => setOverlay({ name: 'review' })} onReminders={() => setOverlay({ name: 'reminders' })} onChapters={() => setOverlay({ name: 'chapters' })} />
         ))}
+      {tab === 'lists' && <Lists />}
       {tab === 'insights' && <Insights />}
       {tab === 'settings' && <Settings />}
 

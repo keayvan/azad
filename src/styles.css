@@ -888,3 +888,39 @@ select:focus {
   color: var(--text3);
   margin-inline-end: 8px;
 }
+
+/* ---------- user lists ---------- */
+.head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.add-btn {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.add-btn:active {
+  transform: scale(0.94);
+}
+
+.list-title {
+  font-size: 18px;
+  font-weight: 800;
+  border-color: transparent !important;
+  background: transparent !important;
+  padding-inline: 0 !important;
+}
+
+.list-title:focus {
+  background: var(--card) !important;
+  padding-inline: 14px !important;
+}
