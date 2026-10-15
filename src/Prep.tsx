@@ -12,7 +12,7 @@ function PlanCard() {
   const { t, num } = useT();
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 30000);
+    const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
   const left = s.plannedAt != null ? s.plannedAt - now : null;
@@ -27,9 +27,30 @@ function PlanCard() {
         onChange={(e) => update({ plannedAt: e.target.value === '' ? null : fromLocalInput(e.target.value) })}
       />
       {s.plannedAt != null && (
-        <p className="what-why" style={{ fontSize: 17 }}>
-          {parts ? t('plan.in', { d: num(parts.d), h: num(parts.h) }) : t('plan.due')}
-        </p>
+        parts ? (
+          <div className="clock" role="timer">
+            <div>
+              <b>{num(parts.d)}</b>
+              <span>{t('dash.d')}</span>
+            </div>
+            <div>
+              <b>{num(parts.h)}</b>
+              <span>{t('dash.h')}</span>
+            </div>
+            <div>
+              <b>{num(parts.m)}</b>
+              <span>{t('dash.m')}</span>
+            </div>
+            <div>
+              <b>{num(parts.s)}</b>
+              <span>{t('dash.s')}</span>
+            </div>
+          </div>
+        ) : (
+          <p className="what-why" style={{ fontSize: 17 }}>
+            {t('plan.due')}
+          </p>
+        )
       )}
       <p className="note">{t('plan.note')}</p>
       {s.plannedAt != null && (
