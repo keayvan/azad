@@ -30,7 +30,9 @@ export function ChapterList({ checkable }: { checkable: boolean }) {
                 <span className="no">{num(c.n)}</span>
                 {title}
               </summary>
-              <p>{gist}</p>
+              {gist.split('\n\n').map((para, i) => (
+                <p key={i}>{para}</p>
+              ))}
             </details>
           </li>
         );
