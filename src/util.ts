@@ -144,3 +144,9 @@ export function moveItem<T>(arr: T[], from: number, to: number): T[] {
   next.splice(to, 0, x);
   return next;
 }
+
+/** Puts `ids` in the order the person chose; ids they have not placed yet go at the end. */
+export function orderBy<T>(ids: T[], saved: T[]): T[] {
+  const known = saved.filter((x) => ids.includes(x));
+  return [...known, ...ids.filter((x) => !known.includes(x))];
+}

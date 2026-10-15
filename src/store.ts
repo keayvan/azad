@@ -61,6 +61,9 @@ export interface State {
   readyChecks: boolean[];
   quitAt: number | null;
   plannedAt: number | null;
+  /** The order of the preparation steps and of the cards on the home page, set by dragging. */
+  stepOrder: StepId[];
+  dashOrder: string[];
   yearsLeft: number;
   cravings: Craving[];
 }
@@ -113,6 +116,8 @@ export function defaults(lang: Lang = detectLang()): State {
     readyChecks: Array(READY_CHECKS).fill(false),
     quitAt: null,
     plannedAt: null,
+    stepOrder: [],
+    dashOrder: [],
     yearsLeft: 30,
     cravings: [],
   };

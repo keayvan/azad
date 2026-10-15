@@ -5,7 +5,8 @@ import { useT } from './i18n';
 import { CURRENCIES, READY_CHECKS, REQUIRED, STEPS, costPerCigarette, isLocked, isUnlocked, requiredDone, stepDone, update, useStore } from './store';
 import type { StepId } from './store';
 import { Brand, Icon, ListEditor, NumField, Screen, Segmented, Toggle } from './ui';
-import { fromLocalInput, lifetimeCost, splitDuration, toLocalInput } from './util';
+import { useSortable } from './sortable';
+import { fromLocalInput, lifetimeCost, moveItem, orderBy, splitDuration, toLocalInput } from './util';
 
 function PlanCard() {
   const s = useStore();
@@ -67,6 +68,8 @@ export function PrepHome({ onOpen, onLast }: { onOpen: (id: StepId) => void; onL
   const { t, num } = useT();
   const done = requiredDone(s);
   const unlocked = isUnlocked(s);
+  const ordered = orderBy(STEPS, s.stepOrder);
+  const sort = useSortable((from, to) => update((cur) => ({ stepOrder: moveItem(orderBy(STEPS, cur.stepOrder), from, to) })));
   return (
     <div className="page">
       <Brand />
@@ -81,9 +84,17 @@ export function PrepHome({ onOpen, onLast }: { onOpen: (id: StepId) => void; onL
         </div>
       </div>
       <PlanCard />
-      <ul className="steps">
-        {STEPS.map((id) => (
-          <li key={id}>
+      <ul className="steps" ref={sort.ref as React.RefObject<HTMLUListElement>}>
+        {ordered.map((id, i) => (
+          <li key={id} data-row className={`drag-row${sort.dragging === i ? ' dragging' : ''}`}>
+            <button
+              className="grip"
+              aria-label={t('common.reorder')}
+              onPointerDown={(e) => sort.start(e, i)}
+              onKeyDown={(e) => sort.onKey(e, i, ordered.length)}
+            >
+              <Icon name="grip" size={20} />
+            </button>
             <button
               className={`step${stepDone(s, id) ? ' done' : ''}${isLocked(s, id) ? ' locked' : ''}`}
               disabled={isLocked(s, id)}

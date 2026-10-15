@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { orderBy } from './util';
 import { normalizeState } from './store';
 import { moveItem, cravingPool, parseNum, toggleChapter, cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
 import { costPerCigarette, defaults, isLocked, isUnlocked, parseBackup, stepDone } from './store';
@@ -69,6 +70,16 @@ describe('reviewStats', () => {
       { belief: '   ', now: 'no' },
     ];
     expect(reviewStats(beliefs)).toEqual({ total: 3, reviewed: 2, gone: 1 });
+  });
+});
+
+describe('orderBy', () => {
+  it('follows the saved order and appends anything new', () => {
+    expect(orderBy(['a', 'b', 'c'], ['c', 'a'])).toEqual(['c', 'a', 'b']);
+  });
+  it('ignores saved ids that no longer exist and handles an empty save', () => {
+    expect(orderBy(['a', 'b'], ['z', 'b'])).toEqual(['b', 'a']);
+    expect(orderBy(['a', 'b'], [])).toEqual(['a', 'b']);
   });
 });
 
