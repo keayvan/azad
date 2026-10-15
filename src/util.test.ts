@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { homeCardIds, orderBy } from './util';
+import { homeCardIds, listCount, orderBy } from './util';
 import { normalizeState } from './store';
 import { moveItem, cravingPool, parseNum, toggleChapter, cigarettesAvoided, countBy, hourBucket, lifetimeCost, moneySaved, pickSuggestion, reviewStats, splitDuration } from './util';
 import { costPerCigarette, defaults, isLocked, isUnlocked, parseBackup, stepDone } from './store';
@@ -70,6 +70,15 @@ describe('reviewStats', () => {
       { belief: '   ', now: 'no' },
     ];
     expect(reviewStats(beliefs)).toEqual({ total: 3, reviewed: 2, gone: 1 });
+  });
+});
+
+describe('listCount', () => {
+  it('counts items for plain lists and pairs for question lists', () => {
+    expect(listCount({ items: ['a', 'b'] })).toBe(2);
+    expect(listCount({ kind: 'items', items: ['a'] })).toBe(1);
+    expect(listCount({ kind: 'qa', items: [], qa: [{ q: 'x', a: 'y' }, { q: '', a: '' }] })).toBe(2);
+    expect(listCount({ kind: 'qa', items: [] })).toBe(0);
   });
 });
 

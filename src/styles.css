@@ -1065,3 +1065,28 @@ select:focus {
   flex-direction: column;
   gap: 4px;
 }
+
+/* ---------- questions and answers lists ---------- */
+.qa-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pinned-qa {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pinned-qa b {
+  display: block;
+}
+
+.pinned-qa p {
+  margin-top: 2px;
+  color: var(--muted);
+}

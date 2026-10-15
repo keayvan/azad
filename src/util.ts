@@ -156,3 +156,8 @@ export function homeCardIds(hidden: string[], lists: { id: string; pinned?: bool
   const base = ['reminders', 'chapters', ...(reviewTotal > 0 ? ['review'] : []), 'milestones'].filter((id) => !hidden.includes(id));
   return [...base, ...lists.filter((l) => l.pinned).map((l) => `list:${l.id}`)];
 }
+
+/** How many entries a list holds, whether it is a plain list or a questions-and-answers list. */
+export function listCount(l: { kind?: 'items' | 'qa'; items: string[]; qa?: unknown[] }): number {
+  return l.kind === 'qa' ? (l.qa ?? []).length : l.items.length;
+}

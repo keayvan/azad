@@ -19,6 +19,11 @@ export interface PlannedEvent {
   line: string;
 }
 
+export interface QAItem {
+  q: string;
+  a: string;
+}
+
 export interface UserList {
   id: string;
   title: string;
@@ -27,6 +32,9 @@ export interface UserList {
   forCraving: boolean;
   /** Show this list as a card on the home page. */
   pinned?: boolean;
+  /** 'qa' lists hold question and answer pairs instead of plain items. */
+  kind?: 'items' | 'qa';
+  qa?: QAItem[];
 }
 
 export interface Craving {
