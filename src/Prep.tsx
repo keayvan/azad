@@ -11,54 +11,140 @@ import { fromLocalInput, lifetimeCost, moveItem, orderBy, splitDuration, toLocal
 
 function PlanCard() {
   const s = useStore();
-  const { t, num } = useT();
+  const { t, num, date } = useT();
   const [now, setNow] = useState(() => Date.now());
+  const [when, setWhen] = useState('');
+  const [why, setWhy] = useState('');
+  const [changing, setChanging] = useState(false);
+  const [reason, setReason] = useState('');
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
   const left = s.plannedAt != null ? s.plannedAt - now : null;
   const parts = left != null && left > 0 ? splitDuration(left) : null;
+  const newMs = when ? fromLocalInput(when) : null;
+  const history = s.planHistory ?? [];
+
+  const setPlan = () => {
+    if (newMs == null || !why.trim()) return;
+    update({ plannedAt: newMs, plannedWhy: why.trim() });
+    setWhen('');
+    setWhy('');
+  };
+  const confirmChange = () => {
+    if (s.plannedAt == null || !reason.trim() || (newMs != null && !why.trim())) return;
+    const entry = { at: s.plannedAt, why: s.plannedWhy, endedAt: Date.now(), reason: reason.trim(), movedTo: newMs };
+    update((cur) => ({
+      planHistory: [...(cur.planHistory ?? []), entry],
+      plannedAt: newMs,
+      plannedWhy: newMs != null ? why.trim() : '',
+    }));
+    setChanging(false);
+    setWhen('');
+    setWhy('');
+    setReason('');
+  };
+
   return (
     <div className="card settings-group">
       <h2>{t('plan.title')}</h2>
-      <input
-        type="datetime-local"
-        value={s.plannedAt != null ? toLocalInput(s.plannedAt) : ''}
-        min={toLocalInput(Date.now())}
-        onChange={(e) => update({ plannedAt: e.target.value === '' ? null : fromLocalInput(e.target.value) })}
-      />
-      {s.plannedAt != null && (
-        parts ? (
-          <div className="clock" role="timer">
-            <div>
-              <b>{num(parts.d)}</b>
-              <span>{t('dash.d')}</span>
-            </div>
-            <div>
-              <b>{num(parts.h)}</b>
-              <span>{t('dash.h')}</span>
-            </div>
-            <div>
-              <b>{num(parts.m)}</b>
-              <span>{t('dash.m')}</span>
-            </div>
-            <div>
-              <b>{num(parts.s)}</b>
-              <span>{t('dash.s')}</span>
-            </div>
-          </div>
-        ) : (
+      {s.plannedAt == null ? (
+        <>
+          <input type="datetime-local" value={when} min={toLocalInput(Date.now())} onChange={(e) => setWhen(e.target.value)} />
+          <label className="field">
+            {t('plan.why')}
+            <textarea value={why} placeholder={t('plan.whyPlaceholder')} onChange={(e) => setWhy(e.target.value)} />
+          </label>
+          <button className="btn small" disabled={newMs == null || !why.trim()} onClick={setPlan}>
+            {t('plan.set')}
+          </button>
+        </>
+      ) : (
+        <>
           <p className="what-why" style={{ fontSize: 17 }}>
-            {t('plan.due')}
+            {date(s.plannedAt)}
           </p>
-        )
+          {s.plannedWhy && <p className="note">{s.plannedWhy}</p>}
+          {parts ? (
+            <div className="clock" role="timer">
+              <div>
+                <b>{num(parts.d)}</b>
+                <span>{t('dash.d')}</span>
+              </div>
+              <div>
+                <b>{num(parts.h)}</b>
+                <span>{t('dash.h')}</span>
+              </div>
+              <div>
+                <b>{num(parts.m)}</b>
+                <span>{t('dash.m')}</span>
+              </div>
+              <div>
+                <b>{num(parts.s)}</b>
+                <span>{t('dash.s')}</span>
+              </div>
+            </div>
+          ) : (
+            <p className="what-why" style={{ fontSize: 17 }}>
+              {t('plan.due')}
+            </p>
+          )}
+          {changing ? (
+            <>
+              <label className="field">
+                {t('plan.reason')}
+                <textarea value={reason} placeholder={t('plan.reasonPlaceholder')} onChange={(e) => setReason(e.target.value)} />
+              </label>
+              <label className="field">
+                {t('plan.newTime')}
+                <input type="datetime-local" value={when} min={toLocalInput(Date.now())} onChange={(e) => setWhen(e.target.value)} />
+              </label>
+              {newMs != null && (
+                <label className="field">
+                  {t('plan.why')}
+                  <textarea value={why} placeholder={t('plan.whyPlaceholder')} onChange={(e) => setWhy(e.target.value)} />
+                </label>
+              )}
+              <div className="grid2">
+                <button className="btn small" disabled={!reason.trim() || (newMs != null && !why.trim())} onClick={confirmChange}>
+                  {t('plan.confirm')}
+                </button>
+                <button
+                  className="btn ghost small"
+                  onClick={() => {
+                    setChanging(false);
+                    setWhen('');
+                    setWhy('');
+                    setReason('');
+                  }}
+                >
+                  {t('plan.back')}
+                </button>
+              </div>
+            </>
+          ) : (
+            <button className="btn ghost small" onClick={() => setChanging(true)}>
+              {t('plan.change')}
+            </button>
+          )}
+        </>
       )}
       <p className="note">{t('plan.note')}</p>
-      {s.plannedAt != null && (
-        <button className="btn ghost small" onClick={() => update({ plannedAt: null })}>
-          {t('plan.clear')}
-        </button>
+      {history.length > 0 && (
+        <details className="plan-history">
+          <summary>{t('plan.history', { n: num(history.length) })}</summary>
+          {[...history].reverse().map((h, i) => (
+            <div key={i} className="plan-log">
+              <b>{t('plan.wasFor', { when: date(h.at) })}</b>
+              {h.why && <p>{h.why}</p>}
+              <p>
+                {t('plan.cancelledOn', { when: date(h.endedAt) })}: {h.reason}
+              </p>
+              <small>{h.movedTo != null ? t('plan.movedTo', { when: date(h.movedTo) }) : t('plan.cancelledOnly')}</small>
+            </div>
+          ))}
+        </details>
       )}
     </div>
   );
@@ -487,7 +573,7 @@ export function LastScreen({ onClose }: { onClose: () => void }) {
           disabled={!valid}
           onClick={() => {
             if (ms == null) return;
-            update({ quitAt: Math.min(ms, Date.now()), plannedAt: null });
+            update({ quitAt: Math.min(ms, Date.now()), plannedAt: null, plannedWhy: '' });
             onClose();
           }}
         >

@@ -71,6 +71,10 @@ export interface State {
   readyChecks: boolean[];
   quitAt: number | null;
   plannedAt: number | null;
+  /** Why the planned time was chosen. */
+  plannedWhy: string;
+  /** Plans that were cancelled or replaced, newest last. */
+  planHistory: PlanLog[];
   /** The order of the preparation steps and of the cards on the home page, set by dragging. */
   stepOrder: StepId[];
   dashOrder: string[];
@@ -78,6 +82,15 @@ export interface State {
   hiddenCards: string[];
   yearsLeft: number;
   cravings: Craving[];
+}
+
+export interface PlanLog {
+  at: number;
+  why: string;
+  endedAt: number;
+  reason: string;
+  /** The time it was moved to, or null when it was only cancelled. */
+  movedTo: number | null;
 }
 
 export const STORAGE_KEY = 'azad.state.v1';
@@ -128,6 +141,8 @@ export function defaults(lang: Lang = detectLang()): State {
     readyChecks: Array(READY_CHECKS).fill(false),
     quitAt: null,
     plannedAt: null,
+    plannedWhy: '',
+    planHistory: [],
     stepOrder: [],
     dashOrder: [],
     hiddenCards: [],
